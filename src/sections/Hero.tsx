@@ -120,7 +120,7 @@ export function Hero() {
 
           <h1
             aria-label="One balance. Every market."
-            className="display text-[clamp(3rem,7.2vw,7.5rem)]"
+            className="display-soft text-[clamp(2.9rem,6.4vw,6.8rem)]"
           >
             <span className="reveal-mask">
               <span data-hero-caps className="reveal-line" aria-hidden="true">
@@ -139,7 +139,7 @@ export function Hero() {
 
           <p
             data-hero-sub
-            className="mt-6 max-w-130 text-[15px] leading-[1.7] text-mute"
+            className="mt-6 max-w-135 text-[16px] leading-[1.7] text-mute"
           >
             BTC, ETH, SOL and 180+ listed equities — traded, borrowed against,
             staked, and spent from one account.

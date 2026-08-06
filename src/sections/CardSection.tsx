@@ -93,7 +93,7 @@ export function CardSection() {
           <span className="inline-block h-px w-10 bg-ember" />
           05 — The card
         </p>
-        <h2 className="display text-[clamp(2.6rem,6vw,6.5rem)]">
+        <h2 className="display text-[clamp(2.4rem,5.2vw,5.6rem)]">
           Spend the
           <br />
           <span className="editorial bg-gradient-to-r from-ember-hi to-ember bg-clip-text pr-[0.06em] text-transparent">
@@ -106,7 +106,7 @@ export function CardSection() {
         data-card-stats
         className="absolute bottom-24 right-6 z-20 flex flex-col items-end gap-3 text-right md:right-10"
       >
-        <p className="max-w-85 text-[15px] leading-[1.7] text-mute">
+        <p className="max-w-85 text-[16px] leading-[1.7] text-mute">
           Crypto or converted fiat at 40M+ merchants. Pick the asset it draws
           from — switch it mid-week if you like.
         </p>

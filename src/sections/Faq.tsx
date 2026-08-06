@@ -43,7 +43,7 @@ function Item({ q, a, open, onToggle }: { q: string; a: string; open: boolean; o
         style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       >
         <div className="overflow-hidden">
-          <p className="max-w-3xl pb-7 text-[15px] leading-[1.75] text-mute">
+          <p className="max-w-3xl pb-7 text-[16px] leading-[1.75] text-mute">
             {a}
           </p>
         </div>

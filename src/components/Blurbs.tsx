@@ -48,9 +48,9 @@ export function Blurbs() {
     <section ref={root} className="relative px-6 pb-6 pt-20 md:px-10">
       <div className="mx-auto grid max-w-[1720px] grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         {BLURBS.map((b) => (
-          <div key={b.title} data-blurb className="border-t pt-6">
-            <h3 className="text-[17px] font-semibold">{b.title}</h3>
-            <p className="mt-3 max-w-70 text-[14px] leading-[1.65] text-mute">
+          <div key={b.title} data-blurb className="border-t pt-7">
+            <h3 className="text-[18px] font-semibold">{b.title}</h3>
+            <p className="mt-3 max-w-72 text-[15px] leading-[1.7] text-mute">
               {b.body}
             </p>
           </div>

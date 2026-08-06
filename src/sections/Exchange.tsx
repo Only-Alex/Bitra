@@ -119,14 +119,14 @@ export function Exchange() {
           <span className="inline-block h-px w-10 bg-ember" />
           03 — Live exchange
         </p>
-        <h2 className="display max-w-3xl text-[clamp(2.8rem,6.4vw,7rem)]">
+        <h2 className="display max-w-3xl text-[clamp(2.6rem,5.4vw,5.8rem)]">
           The floor
           <br />
           <span className="editorial bg-gradient-to-r from-ember-hi to-ember bg-clip-text pr-[0.06em] text-transparent">
             never closes.
           </span>
         </h2>
-        <p className="mt-7 max-w-100 text-[15px] leading-[1.7] text-mute">
+        <p className="mt-7 max-w-105 text-[16px] leading-[1.7] text-mute">
           A real order book across both markets. Streaming quotes, one-tap
           execution, T+0 settlement — around the clock, including weekends.
         </p>

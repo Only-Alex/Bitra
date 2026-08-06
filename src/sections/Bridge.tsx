@@ -178,7 +178,7 @@ export function Bridge() {
           <span className="inline-block h-px w-10 bg-ember" />
           02 — The bridge
         </p>
-        <h2 className="display text-[clamp(2.6rem,6vw,6.5rem)]">
+        <h2 className="display text-[clamp(2.4rem,5.2vw,5.6rem)]">
           Crypto in.
         </h2>
       </div>
@@ -188,12 +188,12 @@ export function Bridge() {
         data-bridge-copy-b
         className="absolute bottom-24 right-6 z-10 text-right md:right-10"
       >
-        <h2 className="display text-[clamp(2.6rem,6vw,6.5rem)]">
+        <h2 className="display text-[clamp(2.4rem,5.2vw,5.6rem)]">
           <span className="editorial bg-gradient-to-r from-ember-hi to-ember bg-clip-text pr-[0.06em] text-transparent">
             equity out.
           </span>
         </h2>
-        <p className="mt-5 ml-auto max-w-95 text-[15px] leading-[1.7] text-mute">
+        <p className="mt-5 ml-auto max-w-95 text-[16px] leading-[1.7] text-mute">
           Sell BTC, own AAPL in the same breath. No fiat ramp, no wires — the
           bridge settles both legs at once.
         </p>

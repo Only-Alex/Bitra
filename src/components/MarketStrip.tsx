@@ -44,8 +44,8 @@ function QuoteCard({ id }: { id: string }) {
           {q.id.slice(0, 1)}
         </span>
         <div>
-          <p className="text-[15px] font-semibold leading-tight">{q.name}</p>
-          <p className="label text-faint">
+          <p className="text-[16px] font-semibold leading-tight">{q.name}</p>
+          <p className="mt-0.5 text-[13px] text-faint">
             {q.id} · {q.kind === "crypto" ? "Crypto" : "Equity"}
           </p>
         </div>
@@ -57,15 +57,15 @@ function QuoteCard({ id }: { id: string }) {
 
       <div className="mt-5 flex items-end justify-between gap-3">
         <div>
-          <p className={`num px text-[22px] font-semibold leading-none ${flash}`}>
+          <p className={`num px text-[24px] font-semibold leading-none ${flash}`}>
             ${fmtPrice(q.price)}
           </p>
-          <p className={`num mt-2 text-[12px] font-semibold ${up ? "text-rise" : "text-fall"}`}>
+          <p className={`num mt-2 text-[13px] font-semibold ${up ? "text-rise" : "text-fall"}`}>
             {fmtDelta(q.delta)} 24H
           </p>
         </div>
-        <button className="label rounded-full bg-white/6 px-5 py-2.5 text-bone transition-colors duration-300 group-hover:bg-ember group-hover:text-void">
-          Trade
+        <button className="label rounded-full bg-ember px-5.5 py-2.5 text-void transition-colors duration-300 hover:bg-ember-hi">
+          Buy
         </button>
       </div>
     </article>

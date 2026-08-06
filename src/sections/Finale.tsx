@@ -57,7 +57,7 @@ export function Finale() {
           <span className="inline-block h-px w-10 bg-ember" />
           07 — Begin
         </p>
-        <h2 className="display text-[clamp(3.2rem,9vw,10rem)]">
+        <h2 className="display text-[clamp(3rem,7.6vw,8.4rem)]">
           <span className="reveal-mask">
             <span data-fin-line className="reveal-line">
               Enter the

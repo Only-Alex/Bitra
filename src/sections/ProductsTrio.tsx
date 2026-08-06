@@ -158,9 +158,9 @@ export function ProductsTrio() {
             One platform, three ways in
             <span className="inline-block h-px w-10 bg-ember" />
           </p>
-          <h2 className="display text-[clamp(2.4rem,5vw,5rem)]">
+          <h2 className="display-soft text-[clamp(2.2rem,4.4vw,4.2rem)]">
             However you
-            <span className="editorial bg-gradient-to-r from-ember-hi to-ember bg-clip-text pl-4 pr-[0.06em] text-transparent">
+            <span className="editorial bg-gradient-to-r from-ember-hi to-ember bg-clip-text pl-3 pr-[0.06em] text-transparent">
               trade.
             </span>
           </h2>
@@ -194,8 +194,8 @@ export function ProductsTrio() {
               <div className="flex flex-1 items-center py-4">
                 <Mock />
               </div>
-              <h3 className="mt-8 text-[19px] font-semibold">{title}</h3>
-              <p className="mt-2.5 text-[14px] leading-[1.65] text-mute">
+              <h3 className="mt-8 text-[20px] font-semibold">{title}</h3>
+              <p className="mt-2.5 text-[15px] leading-[1.7] text-mute">
                 {body}
               </p>
             </article>

@@ -53,10 +53,10 @@ export function ZeroBanner() {
         />
         <div className="relative flex flex-col items-center gap-10 px-8 py-16 md:flex-row md:justify-between md:px-16 md:py-20">
           <div data-zero-copy className="max-w-95 text-center md:text-left">
-            <h2 className="display text-[clamp(1.8rem,2.6vw,2.6rem)]">
+            <h2 className="display-soft text-[clamp(1.8rem,2.6vw,2.6rem)]">
               Straight through.
             </h2>
-            <p className="mt-4 text-[15px] leading-[1.7] text-mute">
+            <p className="mt-4 text-[16px] leading-[1.7] text-mute">
               Crypto to equity in a single settled leg. Nothing parked in a
               fiat account along the way — no wire windows, no ramp fees.
             </p>
