@@ -543,6 +543,20 @@ html.lenis body {
   background: color-mix(in srgb, var(--color-fall) 10%, transparent);
 }
 
+/* How-it-works phone screens: overlaid in motion, first-only when static */
+.hiw-screen {
+  position: absolute;
+  inset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hiw-screen {
+    position: relative;
+  }
+  .hiw-screen:not(:first-child) {
+    display: none;
+  }
+}
+
 /* Feature blocks: static = stacked; motion = overlaid for crossfade */
 .feature-block {
   position: relative;

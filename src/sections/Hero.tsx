@@ -35,8 +35,8 @@ export function Hero() {
           )
           .from("[data-hero-italic]", { yPercent: 112, duration: 1.5 }, 0.72)
           .from(
-            "[data-hero-sub], [data-hero-cta] > *",
-            { autoAlpha: 0, y: 20, duration: 1.1, stagger: 0.1 },
+            "[data-hero-sub], [data-hero-checks] li, [data-hero-cta] > *",
+            { autoAlpha: 0, y: 20, duration: 1.1, stagger: 0.08 },
             1.0,
           )
           .from(
@@ -111,11 +111,9 @@ export function Hero() {
         <div data-hero-copy className="flex flex-col items-center text-center">
           <p
             data-hero-eyebrow
-            className="label mb-6 flex items-center gap-3 text-ember"
+            className="label mb-7 rounded-full border border-ember/25 bg-ember/8 px-5 py-2.5 text-ember"
           >
-            <span className="inline-block h-px w-10 bg-ember" />
-            The exchange between markets
-            <span className="inline-block h-px w-10 bg-ember" />
+            The first crypto-to-equity exchange
           </p>
 
           <h1
@@ -144,6 +142,20 @@ export function Hero() {
             BTC, ETH, SOL and 180+ listed equities — traded, borrowed against,
             staked, and spent from one account.
           </p>
+
+          <ul
+            data-hero-checks
+            className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3"
+          >
+            {["Zero fiat legs", "T+0 settlement", "24/7 markets"].map((c) => (
+              <li key={c} className="flex items-center gap-2.5 text-[14px] text-bone/85">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ember text-[10px] font-bold text-void">
+                  ✓
+                </span>
+                {c}
+              </li>
+            ))}
+          </ul>
 
           <div data-hero-cta className="mt-8 flex items-center gap-7">
             <Magnetic>

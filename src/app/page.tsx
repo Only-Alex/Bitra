@@ -7,6 +7,7 @@ import { Cursor } from "@/components/Cursor";
 import { Blurbs } from "@/components/Blurbs";
 import { Hero } from "@/sections/Hero";
 import { Bridge } from "@/sections/Bridge";
+import { HowItWorks } from "@/sections/HowItWorks";
 import { Exchange } from "@/sections/Exchange";
 import { ZeroBanner } from "@/sections/ZeroBanner";
 import { Features } from "@/sections/Features";
@@ -29,6 +30,7 @@ export default function Home() {
         <Blurbs />
         <MarketStrip />
         <Bridge />
+        <HowItWorks />
         <Exchange />
         <ZeroBanner />
         <Features />
