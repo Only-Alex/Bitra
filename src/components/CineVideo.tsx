@@ -37,8 +37,9 @@ export function CineVideo({
           poster={v.poster}
           preload={priority ? "auto" : "none"}
         >
-          <source src={v.webm} type="video/webm" />
+          {/* mp4 first: webm pairs are optional and may not exist */}
           <source src={v.mp4} type="video/mp4" />
+          <source src={v.webm} type="video/webm" />
         </video>
       ) : (
         <>

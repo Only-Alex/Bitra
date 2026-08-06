@@ -43,7 +43,23 @@ export function Hero() {
             "[data-dash-outer]",
             { autoAlpha: 0, y: 90, duration: 1.6 },
             0.9,
+          )
+          .from(
+            "[data-hero-portal]",
+            { autoAlpha: 0, scale: 0.9, duration: 1.8, ease: "power2.out" },
+            0.3,
           );
+
+        // portal breathes
+        gsap.to("[data-hero-portal]", {
+          y: -14,
+          rotate: 1.2,
+          duration: 4.2,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          delay: PRELOAD_S + 2,
+        });
 
         // Scroll — the device lays flat and takes the stage as copy exits.
         // Outer wrapper belongs to the entrance; inner belongs to this scrub.
@@ -69,6 +85,12 @@ export function Hero() {
             "[data-hero-copy]",
             { yPercent: -34, autoAlpha: 0, duration: 0.4, ease: "power1.in" },
             0.42,
+          )
+          // fly through the gate as the device takes over
+          .to(
+            "[data-hero-portal]",
+            { scale: 2.6, autoAlpha: 0, duration: 0.5, ease: "power1.in" },
+            0.3,
           )
           .to("[data-hero-media]", { scale: 1.1, duration: 1 }, 0);
 
@@ -104,6 +126,15 @@ export function Hero() {
     >
       <div data-hero-media className="absolute inset-0 will-change-transform">
         <CineVideo asset="hero" priority />
+      </div>
+
+      {/* frosted gate floating in the field, behind the copy */}
+      <div
+        data-hero-portal
+        className="pointer-events-none absolute left-1/2 top-[41%] z-[5] hidden -translate-x-1/2 -translate-y-1/2 will-change-transform md:block"
+        aria-hidden="true"
+      >
+        <div className="portal h-[46vh] w-[27vh] max-w-[300px]" />
       </div>
 
       <div className="relative z-10 flex h-full flex-col items-center px-6 pt-[15vh] md:px-10">

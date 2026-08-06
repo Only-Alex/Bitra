@@ -543,6 +543,48 @@ html.lenis body {
   background: color-mix(in srgb, var(--color-fall) 10%, transparent);
 }
 
+/* Glass portal — frosted gate floating in the hero field */
+.portal {
+  position: relative;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.03) 55%,
+    rgba(255, 255, 255, 0.08)
+  );
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  box-shadow:
+    0 0 70px color-mix(in srgb, var(--color-ember) 30%, transparent),
+    0 0 180px color-mix(in srgb, var(--color-flare) 14%, transparent),
+    inset 0 0 44px rgba(255, 255, 255, 0.09);
+}
+.portal::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 32px;
+  background: linear-gradient(
+    200deg,
+    color-mix(in srgb, var(--color-ember-hi) 55%, transparent),
+    transparent 30%,
+    transparent 70%,
+    color-mix(in srgb, var(--color-flare) 45%, transparent)
+  );
+  filter: blur(10px);
+  opacity: 0.5;
+  z-index: -1;
+}
+
+/* electric filaments drawn across the metal card */
+.filament {
+  stroke-dasharray: 340;
+  stroke-dashoffset: 340;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-ember) 80%, transparent));
+}
+
 /* How-it-works phone screens: overlaid in motion, first-only when static */
 .hiw-screen {
   position: absolute;

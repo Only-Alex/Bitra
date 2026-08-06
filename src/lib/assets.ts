@@ -22,7 +22,7 @@ export type VideoAsset = {
 export const VIDEOS = {
   hero: {
     id: "A",
-    ready: false,
+    ready: true,
     webm: "/videos/hero.webm",
     mp4: "/videos/hero.mp4",
     poster: "/videos/hero.jpg",
@@ -41,7 +41,7 @@ export const VIDEOS = {
   },
   card: {
     id: "C",
-    ready: false,
+    ready: true,
     webm: "/videos/card.webm",
     mp4: "/videos/card.mp4",
     poster: "/videos/card.jpg",
@@ -50,7 +50,7 @@ export const VIDEOS = {
   },
   finale: {
     id: "D",
-    ready: false,
+    ready: true,
     webm: "/videos/finale.webm",
     mp4: "/videos/finale.mp4",
     poster: "/videos/finale.jpg",
