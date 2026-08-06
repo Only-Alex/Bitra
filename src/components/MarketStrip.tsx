@@ -115,9 +115,11 @@ export function MarketStrip() {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         gsap.from("[data-quote-card]", {
-          y: 36,
+          y: 48,
+          rotateX: -14,
+          transformPerspective: 900,
           autoAlpha: 0,
-          duration: 1,
+          duration: 1.1,
           ease: "power3.out",
           stagger: 0.08,
           scrollTrigger: {

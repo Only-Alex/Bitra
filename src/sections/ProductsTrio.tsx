@@ -7,6 +7,7 @@ import { fmtDelta, fmtPrice, useQuote } from "@/lib/market";
 import { Sparkline } from "@/components/charts/Sparkline";
 import { LiveChart } from "@/components/charts/LiveChart";
 import { Magnetic } from "@/components/Magnetic";
+import { Tilt3D } from "@/components/Tilt3D";
 
 /** phone frame with a live mini balance UI */
 function PhoneMock() {
@@ -177,10 +178,10 @@ export function ProductsTrio() {
 
         <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3">
           {PRODUCTS.map(({ tag, title, body, Mock }) => (
+            <Tilt3D key={title} className="h-full">
             <article
-              key={title}
               data-trio-card
-              className="glass group flex flex-col rounded-[2rem] p-7 transition-all duration-500 hover:-translate-y-2 hover:border-ember/30"
+              className="glass group flex h-full flex-col rounded-[2rem] p-7 transition-colors duration-500 hover:border-ember/30"
             >
               <div className="mb-8 flex items-center justify-between">
                 <span className="label glass rounded-full px-4 py-2 text-mute">
@@ -198,6 +199,7 @@ export function ProductsTrio() {
                 {body}
               </p>
             </article>
+            </Tilt3D>
           ))}
         </div>
       </div>
