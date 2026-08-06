@@ -62,7 +62,7 @@ export function CardSection() {
             className="pointer-events-none absolute -inset-[40%]"
             style={{
               background:
-                "linear-gradient(105deg, transparent 42%, rgba(255,255,255,0.16) 50%, rgba(255,174,0,0.12) 54%, transparent 62%)",
+                "linear-gradient(105deg, transparent 42%, rgba(255,255,255,0.16) 50%, rgba(24,159,251,0.14) 54%, transparent 62%)",
             }}
           />
           <div className="absolute inset-0 flex flex-col justify-between p-8">

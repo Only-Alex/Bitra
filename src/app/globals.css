@@ -6,17 +6,17 @@
    ============================================================ */
 
 @theme {
-  /* Base */
-  --color-void: #050508;
-  --color-ink: #0a0a0f;
-  --color-ink-2: #101018;
-  --color-ink-3: #16161f;
+  /* Base — deep navy-black, crypto.com register */
+  --color-void: #04080f;
+  --color-ink: #0a111f;
+  --color-ink-2: #0f182b;
+  --color-ink-3: #152238;
 
-  /* Accent — committed: molten amber, vibrant cut */
-  --color-ember: #ffae00;
-  --color-ember-hi: #ffd873;
-  --color-ember-lo: #e07d00;
-  --color-flare: #ff7a1a;
+  /* Accent — electric blue (t212 × crypto.com), token names unchanged */
+  --color-ember: #189ffb;
+  --color-ember-hi: #7fd0ff;
+  --color-ember-lo: #0b6bd4;
+  --color-flare: #00d5ff;
 
   /* Market */
   --color-rise: #2ce88a;
@@ -195,8 +195,8 @@ html.lenis body {
   top: 24%;
   background: radial-gradient(
     circle at 55% 45%,
-    color-mix(in srgb, #dfe8ff 40%, transparent),
-    color-mix(in srgb, #7d8fd9 20%, transparent) 50%,
+    color-mix(in srgb, #e6e0ff 38%, transparent),
+    color-mix(in srgb, #8b7cf6 20%, transparent) 50%,
     transparent 72%
   );
   animation: drift-b 44s var(--ease-power3) infinite alternate;
@@ -491,7 +491,7 @@ html.lenis body {
   aspect-ratio: 1.586;
   border-radius: 24px;
   background:
-    linear-gradient(120deg, #14141a 0%, #1e1e28 38%, #101016 62%, #0b0b10 100%);
+    linear-gradient(120deg, #121722 0%, #1b2232 38%, #0e131e 62%, #0a0e16 100%);
   border: 1px solid color-mix(in srgb, white 14%, transparent);
   box-shadow:
     0 60px 120px -30px rgba(0, 0, 0, 0.8),

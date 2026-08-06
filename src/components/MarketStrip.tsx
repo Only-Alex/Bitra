@@ -38,7 +38,7 @@ function QuoteCard({ id }: { id: string }) {
           className={`label flex h-10 w-10 items-center justify-center rounded-xl ${
             q.kind === "crypto"
               ? "bg-ember/15 text-ember"
-              : "bg-[#7d8fd9]/15 text-[#aebbf0]"
+              : "bg-[#8b7cf6]/15 text-[#c0b3fa]"
           }`}
         >
           {q.id.slice(0, 1)}

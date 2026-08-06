@@ -51,7 +51,7 @@ function MiniRow({ id }: { id: string }) {
           className={`label flex h-7 w-7 items-center justify-center rounded-lg ${
             q.kind === "crypto"
               ? "bg-ember/15 text-ember"
-              : "bg-[#7d8fd9]/15 text-[#aebbf0]"
+              : "bg-[#8b7cf6]/15 text-[#c0b3fa]"
           }`}
         >
           {q.id.slice(0, 1)}
@@ -124,7 +124,7 @@ function ScreenPortfolio() {
       <div className="mt-4 rounded-2xl border border-ember/25 bg-ember/8 p-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="label flex h-8 w-8 items-center justify-center rounded-lg bg-[#7d8fd9]/15 text-[#aebbf0]">
+            <span className="label flex h-8 w-8 items-center justify-center rounded-lg bg-[#8b7cf6]/15 text-[#c0b3fa]">
               A
             </span>
             <div>

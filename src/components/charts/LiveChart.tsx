@@ -29,8 +29,11 @@ export function LiveChart({ id, height = 220 }: LiveChartProps) {
     if (!ctx) return;
 
     const css = getComputedStyle(document.documentElement);
-    const ember = css.getPropertyValue("--color-ember").trim() || "#ffae00";
-    const emberHi = css.getPropertyValue("--color-ember-hi").trim() || "#ffd873";
+    const ember = css.getPropertyValue("--color-ember").trim() || "#189ffb";
+    const emberHi = css.getPropertyValue("--color-ember-hi").trim() || "#7fd0ff";
+    // accent as "r,g,b" so every canvas alpha follows the theme token
+    const n = parseInt(ember.replace("#", ""), 16);
+    const rgb = `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0;
@@ -86,8 +89,8 @@ export function LiveChart({ id, height = 220 }: LiveChartProps) {
 
       // area
       const grad = ctx.createLinearGradient(0, padT, 0, h);
-      grad.addColorStop(0, "rgba(255,174,0,0.26)");
-      grad.addColorStop(1, "rgba(255,174,0,0)");
+      grad.addColorStop(0, `rgba(${rgb},0.26)`);
+      grad.addColorStop(1, `rgba(${rgb},0)`);
       ctx.beginPath();
       ctx.moveTo(0, h);
       for (let i = 0; i < d.length; i++) ctx.lineTo(X(i), Y(d[i]));
@@ -107,7 +110,7 @@ export function LiveChart({ id, height = 220 }: LiveChartProps) {
       ctx.strokeStyle = ember;
       ctx.lineWidth = 1.8;
       ctx.lineJoin = "round";
-      ctx.shadowColor = "rgba(255,174,0,0.55)";
+      ctx.shadowColor = `rgba(${rgb},0.55)`;
       ctx.shadowBlur = 10;
       ctx.stroke();
       ctx.shadowBlur = 0;
@@ -118,7 +121,7 @@ export function LiveChart({ id, height = 220 }: LiveChartProps) {
       const pulse = reduced ? 0.5 : (Math.sin(t / 420) + 1) / 2;
       ctx.beginPath();
       ctx.arc(lx, ly, 3 + pulse * 7, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,174,0,${0.28 - pulse * 0.22})`;
+      ctx.fillStyle = `rgba(${rgb},${0.28 - pulse * 0.22})`;
       ctx.fill();
       ctx.beginPath();
       ctx.arc(lx, ly, 3, 0, Math.PI * 2);
