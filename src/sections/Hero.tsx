@@ -107,6 +107,10 @@ export function Hero() {
           .to("[data-space]", { autoAlpha: 0, duration: 0.12 }, 0.4)
           .to("[data-stage]", { autoAlpha: 1, duration: 0.14 }, 0.44)
           .to("[data-world]", { autoAlpha: 1, duration: 0.12 }, 0.45)
+          // once the card settles the world recedes to a near-black stage so
+          // the product is the only thing in frame
+          .to("[data-world]", { autoAlpha: 0.14, duration: 0.16 }, 0.56)
+          .to("[data-ghost]", { autoAlpha: 0.18, duration: 0.16 }, 0.56)
           .fromTo(
             "[data-ghost]",
             { autoAlpha: 0 },

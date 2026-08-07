@@ -65,35 +65,46 @@ function useEnvTextures() {
       ctx.fillRect(0, 0, 512, 128);
     });
 
-    // Bitra card face: brushed anodized icy metal, engraved mark + wordmark,
-    // chip, contactless, DEBIT. Bright to the very edge — no dark border.
-    const card = canvasTexture(1024, 648, (ctx) => {
-      const base = ctx.createLinearGradient(0, 0, 1024, 648);
-      base.addColorStop(0, "#243550");
-      base.addColorStop(0.45, "#2d4266");
-      base.addColorStop(1, "#1d2c46");
-      ctx.fillStyle = base;
-      ctx.fillRect(0, 0, 1024, 648);
-
-      // brushed streaks
-      for (let i = 0; i < 900; i++) {
-        const y = Math.random() * 648;
-        const a = Math.random() * 0.045;
-        ctx.strokeStyle = `rgba(${Math.random() > 0.5 ? "200,225,255" : "10,14,24"},${a})`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(-20, y);
-        ctx.lineTo(1044, y + (Math.random() - 0.5) * 3);
-        ctx.stroke();
+    /**
+     * Bitra card face. The metal is a generated photographic plate; every
+     * brand element is drawn as vectors on top so type and the mark stay
+     * sharp at any zoom. Renders once with a procedural fallback, then
+     * repaints when the plate loads.
+     */
+    const paintCardFace = (
+      ctx: CanvasRenderingContext2D,
+      plate: HTMLImageElement | null,
+    ) => {
+      if (plate) {
+        // the plate is shot dark; lift it so the metal still reads once the
+        // world dims behind the card
+        ctx.filter = "brightness(1.3) saturate(1.12)";
+        ctx.drawImage(plate, 0, 0, 1024, 648);
+        ctx.filter = "none";
+      } else {
+        const base = ctx.createLinearGradient(0, 0, 1024, 648);
+        base.addColorStop(0, "#243550");
+        base.addColorStop(0.45, "#2d4266");
+        base.addColorStop(1, "#1d2c46");
+        ctx.fillStyle = base;
+        ctx.fillRect(0, 0, 1024, 648);
+        for (let i = 0; i < 900; i++) {
+          const y = Math.random() * 648;
+          const a = Math.random() * 0.045;
+          ctx.strokeStyle = `rgba(${Math.random() > 0.5 ? "200,225,255" : "10,14,24"},${a})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(-20, y);
+          ctx.lineTo(1044, y + (Math.random() - 0.5) * 3);
+          ctx.stroke();
+        }
+        const sweep = ctx.createLinearGradient(0, 0, 1024, 648);
+        sweep.addColorStop(0.3, "rgba(160,205,255,0)");
+        sweep.addColorStop(0.5, "rgba(160,205,255,0.10)");
+        sweep.addColorStop(0.7, "rgba(160,205,255,0)");
+        ctx.fillStyle = sweep;
+        ctx.fillRect(0, 0, 1024, 648);
       }
-
-      // diagonal light sweep
-      const sweep = ctx.createLinearGradient(0, 0, 1024, 648);
-      sweep.addColorStop(0.3, "rgba(160,205,255,0)");
-      sweep.addColorStop(0.5, "rgba(160,205,255,0.10)");
-      sweep.addColorStop(0.7, "rgba(160,205,255,0)");
-      ctx.fillStyle = sweep;
-      ctx.fillRect(0, 0, 1024, 648);
 
       // chip — contact pads
       const cx = 118;
@@ -152,14 +163,14 @@ function useEnvTextures() {
         ctx.lineTo(ox + 29.8 * u, oy + 11.8 * u);
         ctx.stroke();
       };
-      drawMark(84, 62, 108, "rgba(8,12,20,0.75)", 9);
-      drawMark(84, 65, 108, "rgba(190,222,252,0.4)", 9);
+      drawMark(84, 62, 108, "rgba(6,10,18,0.92)", 9);
+      drawMark(84, 65, 108, "rgba(214,236,255,0.72)", 9);
 
       // engraved wordmark, bottom-left
       ctx.font = "700 84px Arial, sans-serif";
-      ctx.fillStyle = "rgba(8,12,20,0.75)";
+      ctx.fillStyle = "rgba(6,10,18,0.92)";
       ctx.fillText("BITRA.", 92, 560);
-      ctx.fillStyle = "rgba(190,222,252,0.42)";
+      ctx.fillStyle = "rgba(214,236,255,0.75)";
       ctx.fillText("BITRA.", 92, 563);
 
       // network slot, bottom-right: DEBIT over the Visa concept placeholder
@@ -174,8 +185,22 @@ function useEnvTextures() {
       ctx.fillStyle = "rgba(240,246,252,0.95)";
       ctx.fillText("VISA", 936, 573);
       ctx.textAlign = "left";
-    });
+    };
+
+    const card = canvasTexture(1024, 648, (ctx) => paintCardFace(ctx, null));
     card.anisotropy = 8;
+    card.colorSpace = THREE.SRGBColorSpace; // colour map, not data
+
+    // upgrade to the photographic plate once it decodes
+    const plate = new Image();
+    plate.onload = () => {
+      const canvas = card.image as HTMLCanvasElement;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      paintCardFace(ctx, plate);
+      card.needsUpdate = true;
+    };
+    plate.src = "/textures/card-metal.jpg";
 
     return { glow, ridge1: ridge(1, 6), ridge2: ridge(2, 9), fog, card };
   }, []);
@@ -400,7 +425,7 @@ export function HeroScene() {
     // camera-side fill exists only inside the world, so the card face
     // reads evenly without washing the moonlit establish
     if (fillLight.current) {
-      fillLight.current.intensity = settle * 0.85 * (1 - handoff);
+      fillLight.current.intensity = settle * 0.95 * (1 - handoff);
     }
   });
 
@@ -534,9 +559,9 @@ export function HeroScene() {
             ref={panelMat}
             map={tex.card}
             color="#ffffff"
-            metalness={0.5}
-            roughness={0.42}
-            envMapIntensity={1.4}
+            metalness={0.3}
+            roughness={0.52}
+            envMapIntensity={1.8}
             clearcoat={0.7}
             clearcoatRoughness={0.25}
             transparent
