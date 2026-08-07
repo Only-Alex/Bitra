@@ -305,7 +305,7 @@ export function HeroScene() {
     [],
   );
   const panelRimGeo = useMemo(
-    () => new THREE.TubeGeometry(roundedRectPath(MW, MH, 0.14) as never, 220, 0.016, 6, true),
+    () => new THREE.TubeGeometry(roundedRectPath(MW, MH, 0.075) as never, 240, 0.011, 8, true),
     [],
   );
   const latGeo = useMemo(() => latticeGeometry(MW, MH), []);
@@ -386,9 +386,15 @@ export function HeroScene() {
       g.position.z = lerp(-3.4, -0.9, settle) + lerp(0, 2.4, handoff);
       g.position.x = lerp(0.5, -0.12, settle);
       g.position.y = Math.sin(t * 0.5) * idleAmp * 0.8;
-      g.rotation.z = lerp(-0.3, -0.16, settle);
-      g.rotation.y = lerp(0.5, 0.24, settle) + s.px;
-      g.rotation.x = lerp(-0.2, -0.1, settle) + s.py * 0.7;
+      // settled product motion, matching the card plate: a slow continuous
+      // turn on Y with a gentle counter-roll, so the brushed grain catches
+      // the travelling light instead of sitting static
+      const turn = settle * (1 - handoff);
+      g.rotation.z = lerp(-0.3, -0.16, settle) + Math.sin(t * 0.21) * 0.05 * turn;
+      g.rotation.y =
+        lerp(0.5, 0.24, settle) + s.px + Math.sin(t * 0.34) * 0.42 * turn;
+      g.rotation.x =
+        lerp(-0.2, -0.1, settle) + s.py * 0.7 + Math.cos(t * 0.27) * 0.11 * turn;
       g.scale.setScalar(mob ? 0.78 : 1);
     }
     if (panelMat.current) {
@@ -422,10 +428,17 @@ export function HeroScene() {
       const a = t * 0.12;
       keyLight.current.position.set(Math.sin(a) * 4 - 2, 3, Math.cos(a) * 2 + 4);
     }
-    // camera-side fill exists only inside the world, so the card face
-    // reads evenly without washing the moonlit establish
+    // camera-side fill exists only inside the world, so the card face reads
+    // evenly without washing the moonlit establish. It also arcs across the
+    // card so a specular sweep travels the brushed grain.
     if (fillLight.current) {
-      fillLight.current.intensity = settle * 0.95 * (1 - handoff);
+      fillLight.current.intensity = settle * 1.05 * (1 - handoff);
+      const sweep = t * 0.38;
+      fillLight.current.position.set(
+        Math.sin(sweep) * 5.5,
+        1.2 + Math.cos(sweep * 0.7) * 1.4,
+        5.5,
+      );
     }
   });
 
@@ -554,7 +567,9 @@ export function HeroScene() {
 
       {/* ---------- the Bitra card, inside the world ---------- */}
       <group ref={panel} visible={false}>
-        <RoundedBox args={[MW, MH, 0.05]} radius={0.14} smoothness={6}>
+        {/* thin with a tight bevel: a deep rounded edge renders dark and
+            reads as a frame around the face */}
+        <RoundedBox args={[MW, MH, 0.022]} radius={0.075} smoothness={7}>
           <meshPhysicalMaterial
             ref={panelMat}
             map={tex.card}
@@ -579,7 +594,7 @@ export function HeroScene() {
             depthWrite={false}
           />
         </mesh>
-        <lineSegments ref={lattice} geometry={latGeo} position={[0, 0, 0.035]}>
+        <lineSegments ref={lattice} geometry={latGeo} position={[0, 0, 0.02]}>
           <lineBasicMaterial
             ref={latMat}
             color="#a7d8ff"
