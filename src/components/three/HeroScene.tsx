@@ -65,12 +65,13 @@ function useEnvTextures() {
       ctx.fillRect(0, 0, 512, 128);
     });
 
-    // Bitra card face: brushed anodized icy metal, engraved wordmark, chip
+    // Bitra card face: brushed anodized icy metal, engraved mark + wordmark,
+    // chip, contactless, DEBIT. Bright to the very edge — no dark border.
     const card = canvasTexture(1024, 648, (ctx) => {
       const base = ctx.createLinearGradient(0, 0, 1024, 648);
-      base.addColorStop(0, "#131c2c");
-      base.addColorStop(0.45, "#1a2740");
-      base.addColorStop(1, "#0e1626");
+      base.addColorStop(0, "#243550");
+      base.addColorStop(0.45, "#2d4266");
+      base.addColorStop(1, "#1d2c46");
       ctx.fillStyle = base;
       ctx.fillRect(0, 0, 1024, 648);
 
@@ -119,18 +120,56 @@ function useEnvTextures() {
       ctx.lineTo(cx + 140, cy + 76);
       ctx.stroke();
 
-      // engraved wordmark: dark inset + light lower edge
-      ctx.font = "700 92px Arial, sans-serif";
-      ctx.fillStyle = "rgba(8,12,20,0.7)";
-      ctx.fillText("BITRA.", 96, 512);
-      ctx.fillStyle = "rgba(170,210,250,0.35)";
-      ctx.fillText("BITRA.", 96, 515);
+      // contactless arcs, right of the chip
+      ctx.strokeStyle = "rgba(220,236,252,0.5)";
+      ctx.lineWidth = 7;
+      ctx.lineCap = "round";
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(330, 309, 18 + i * 16, -Math.PI / 3, Math.PI / 3);
+        ctx.stroke();
+      }
 
-      // debit marker
-      ctx.font = "600 30px Arial, sans-serif";
+      // the gateway-tick mark, engraved top-left (ring + breakout line)
+      const drawMark = (ox: number, oy: number, s: number, style: string, lw: number) => {
+        ctx.strokeStyle = style;
+        ctx.lineWidth = lw;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        const u = s / 32;
+        ctx.beginPath();
+        ctx.roundRect(ox + 3.5 * u, oy + 3.5 * u, 25 * u, 25 * u, 7.5 * u);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ox + 9 * u, oy + 21 * u);
+        ctx.lineTo(ox + 14 * u, oy + 15.5 * u);
+        ctx.lineTo(ox + 18 * u, oy + 18.5 * u);
+        ctx.lineTo(ox + 29.5 * u, oy + 6.5 * u);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ox + 24 * u, oy + 6 * u);
+        ctx.lineTo(ox + 29.8 * u, oy + 6 * u);
+        ctx.lineTo(ox + 29.8 * u, oy + 11.8 * u);
+        ctx.stroke();
+      };
+      drawMark(84, 62, 108, "rgba(8,12,20,0.75)", 9);
+      drawMark(84, 65, 108, "rgba(190,222,252,0.4)", 9);
+
+      // engraved wordmark, bottom-left
+      ctx.font = "700 84px Arial, sans-serif";
+      ctx.fillStyle = "rgba(8,12,20,0.75)";
+      ctx.fillText("BITRA.", 92, 560);
+      ctx.fillStyle = "rgba(190,222,252,0.42)";
+      ctx.fillText("BITRA.", 92, 563);
+
+      // DEBIT, bottom-right — the network slot stays honest until a real
+      // issuing partner exists
       ctx.textAlign = "right";
-      ctx.fillStyle = "rgba(215,232,250,0.55)";
-      ctx.fillText("DEBIT", 950, 560);
+      ctx.font = "800 52px Arial, sans-serif";
+      ctx.fillStyle = "rgba(8,12,20,0.7)";
+      ctx.fillText("DEBIT", 936, 556);
+      ctx.fillStyle = "rgba(228,240,252,0.85)";
+      ctx.fillText("DEBIT", 936, 559);
       ctx.textAlign = "left";
     });
     card.anisotropy = 8;
@@ -485,8 +524,9 @@ export function HeroScene() {
             ref={panelMat}
             map={tex.card}
             color="#ffffff"
-            metalness={0.72}
-            roughness={0.34}
+            metalness={0.5}
+            roughness={0.42}
+            envMapIntensity={1.4}
             clearcoat={0.7}
             clearcoatRoughness={0.25}
             transparent
