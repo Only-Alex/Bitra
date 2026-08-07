@@ -162,14 +162,17 @@ function useEnvTextures() {
       ctx.fillStyle = "rgba(190,222,252,0.42)";
       ctx.fillText("BITRA.", 92, 563);
 
-      // DEBIT, bottom-right — the network slot stays honest until a real
-      // issuing partner exists
+      // network slot, bottom-right: DEBIT over the Visa concept placeholder
+      // (generic type rendering for the client demo, not the official asset)
       ctx.textAlign = "right";
-      ctx.font = "800 52px Arial, sans-serif";
-      ctx.fillStyle = "rgba(8,12,20,0.7)";
-      ctx.fillText("DEBIT", 936, 556);
-      ctx.fillStyle = "rgba(228,240,252,0.85)";
-      ctx.fillText("DEBIT", 936, 559);
+      ctx.font = "600 26px Arial, sans-serif";
+      ctx.fillStyle = "rgba(228,240,252,0.7)";
+      ctx.fillText("DEBIT", 934, 498);
+      ctx.font = "italic 900 66px Arial, sans-serif";
+      ctx.fillStyle = "rgba(8,12,20,0.65)";
+      ctx.fillText("VISA", 936, 570);
+      ctx.fillStyle = "rgba(240,246,252,0.95)";
+      ctx.fillText("VISA", 936, 573);
       ctx.textAlign = "left";
     });
     card.anisotropy = 8;
@@ -270,6 +273,7 @@ export function HeroScene() {
   const env = useRef<THREE.Group>(null);
   const keyLight = useRef<THREE.DirectionalLight>(null);
   const riseLight = useRef<THREE.PointLight>(null);
+  const fillLight = useRef<THREE.DirectionalLight>(null);
 
   const phoneRimGeo = useMemo(
     () => new THREE.TubeGeometry(roundedRectPath(PW, PH, 0.22) as never, 260, 0.017, 8, true),
@@ -393,6 +397,11 @@ export function HeroScene() {
       const a = t * 0.12;
       keyLight.current.position.set(Math.sin(a) * 4 - 2, 3, Math.cos(a) * 2 + 4);
     }
+    // camera-side fill exists only inside the world, so the card face
+    // reads evenly without washing the moonlit establish
+    if (fillLight.current) {
+      fillLight.current.intensity = settle * 0.85 * (1 - handoff);
+    }
   });
 
   return (
@@ -401,6 +410,7 @@ export function HeroScene() {
       <directionalLight ref={keyLight} position={[-2, 3, 4]} intensity={1.1} color="#9fcfff" />
       <directionalLight position={[3, -2, -3]} intensity={0.35} color="#2a4a70" />
       <pointLight ref={riseLight} position={[0, 0.5, 3.2]} intensity={0.3} color="#a7d8ff" />
+      <directionalLight ref={fillLight} position={[1, 0.4, 6]} intensity={0} color="#cfe2ff" />
 
       {/* ---------- the Bitra phone — gateway into the markets ---------- */}
       <group ref={phone} position={[2.45, 0.62, -5.6]}>
