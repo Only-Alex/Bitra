@@ -69,8 +69,18 @@ export function PhoneUI() {
     <div
       ref={ref}
       /* 280 x 586 keeps the DOM aspect equal to the device face (1.98 x 4.14)
-         so the screen can fill it edge to edge with no bezel gap */
+         so the screen fills it edge to edge with no bezel gap.
+         The border lives here, not on the 3D rim: this DOM layer renders
+         above the canvas, so anything drawn in WebGL behind it is hidden. */
       className="pointer-events-none relative flex h-[586px] w-[280px] select-none flex-col overflow-hidden rounded-[2rem] bg-gradient-to-b from-[#0a1220] to-[#070c15]"
+      style={{
+        // inline, not utility classes: the global `*` border-color rule
+        // outranks a generated border utility, and comma-bearing arbitrary
+        // shadow values don't parse
+        border: "5px solid #79bfff",
+        boxShadow:
+          "0 0 26px rgba(121,191,255,0.55), inset 0 0 14px rgba(121,191,255,0.20)",
+      }}
     >
       {/* ---- status bar ---- */}
       <div className="flex items-center justify-between px-6 pt-3.5">
