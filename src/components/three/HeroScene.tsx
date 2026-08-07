@@ -446,10 +446,13 @@ export function HeroScene() {
         </mesh>
 
         {/* live app UI — sharp DOM mapped onto the screen */}
+        {/* Solved, not guessed: the device face projects to 207x433px at
+            establish; this scale maps the 280x586 DOM onto exactly that,
+            so the screen *is* the face and no bezel is visible. */}
         <Html
           transform
           position={[0, 0, 0.056]}
-          scale={0.26}
+          scale={0.282}
           zIndexRange={[30, 0]}
           style={{ pointerEvents: "none" }}
         >

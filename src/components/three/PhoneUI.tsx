@@ -68,7 +68,9 @@ export function PhoneUI() {
   return (
     <div
       ref={ref}
-      className="pointer-events-none relative flex h-[600px] w-[280px] select-none flex-col overflow-hidden rounded-[2.4rem] bg-gradient-to-b from-[#0a1220] to-[#070c15]"
+      /* 280 x 586 keeps the DOM aspect equal to the device face (1.98 x 4.14)
+         so the screen can fill it edge to edge with no bezel gap */
+      className="pointer-events-none relative flex h-[586px] w-[280px] select-none flex-col overflow-hidden rounded-[2rem] bg-gradient-to-b from-[#0a1220] to-[#070c15]"
     >
       {/* ---- status bar ---- */}
       <div className="flex items-center justify-between px-6 pt-3.5">
@@ -191,7 +193,7 @@ export function PhoneUI() {
 
       {/* screen glass sheen */}
       <div
-        className="pointer-events-none absolute inset-0 rounded-[2.4rem]"
+        className="pointer-events-none absolute inset-0 rounded-[2rem]"
         style={{
           background:
             "linear-gradient(115deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 18%, transparent 32%)",
