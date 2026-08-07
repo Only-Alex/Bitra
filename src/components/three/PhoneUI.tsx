@@ -3,30 +3,38 @@
 import { useEffect, useRef } from "react";
 import { fmtDelta, fmtPrice, useQuote } from "@/lib/market";
 import { Sparkline } from "@/components/charts/Sparkline";
+import { BitraMark } from "@/components/BitraMark";
 import { heroState, seg } from "@/lib/motion/heroProgress";
 
-function Row({ id }: { id: string }) {
+function WatchRow({ id }: { id: string }) {
   const q = useQuote(id);
   const up = q.delta >= 0;
   return (
-    <div className="flex items-center justify-between rounded-xl bg-white/4 px-3 py-2.5">
-      <div className="flex items-center gap-2.5">
+    <div className="flex items-center justify-between py-[7px]">
+      <div className="flex w-[92px] items-center gap-2.5">
         <span
-          className={`label flex h-7 w-7 items-center justify-center rounded-lg ${
-            q.kind === "crypto" ? "bg-ice/15 text-ice" : "bg-white/8 text-bone/80"
+          className={`label flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] ${
+            q.kind === "crypto"
+              ? "bg-ice/18 text-ice-hi"
+              : "bg-white/10 text-bone/90"
           }`}
         >
           {q.id.slice(0, 1)}
         </span>
-        <div>
-          <p className="text-[11px] font-semibold leading-tight">{q.id}</p>
-          <p className="text-[9px] text-faint">{q.name}</p>
+        <div className="min-w-0">
+          <p className="truncate text-[11.5px] font-semibold leading-tight">
+            {q.name}
+          </p>
+          <p className="text-[9.5px] text-faint">{q.id}</p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="num text-[11px] font-semibold">${fmtPrice(q.price)}</p>
-        <p className={`num text-[9px] font-semibold ${up ? "text-rise" : "text-fall"}`}>
-          {fmtDelta(q.delta)}
+      <Sparkline id={id} width={58} height={20} strokeWidth={1.3} areaOpacity={0} />
+      <div className="w-[72px] text-right">
+        <p className="num text-[11.5px] font-semibold">${fmtPrice(q.price)}</p>
+        <p
+          className={`num text-[9.5px] font-semibold ${up ? "text-rise" : "text-fall"}`}
+        >
+          {up ? "↗" : "↘"} {fmtDelta(q.delta)}
         </p>
       </div>
     </div>
@@ -34,15 +42,15 @@ function Row({ id }: { id: string }) {
 }
 
 /**
- * The live Bitra app rendered onto the 3D phone's screen. Real DOM —
- * stays razor sharp as the camera dives through it. Fades itself out
- * across the threshold using the shared progress value.
+ * The live Bitra app on the 3D phone's screen. Real DOM — razor sharp
+ * through the dive. Self-fades across the threshold via shared progress.
  */
 export function PhoneUI() {
   const btc = useQuote("BTC");
   const eth = useQuote("ETH");
   const ref = useRef<HTMLDivElement>(null);
-  const total = btc.price * 0.94 + eth.price * 8.2;
+  const invested = btc.price * 0.62 + eth.price * 5.1;
+  const total = invested + 21430.55;
   const up = btc.delta >= 0;
 
   useEffect(() => {
@@ -60,87 +68,133 @@ export function PhoneUI() {
   return (
     <div
       ref={ref}
-      className="pointer-events-none relative flex h-[600px] w-[280px] select-none flex-col overflow-hidden rounded-[2.4rem] bg-[#080d16] px-5 pb-4 pt-3"
+      className="pointer-events-none relative flex h-[600px] w-[280px] select-none flex-col overflow-hidden rounded-[2.4rem] bg-gradient-to-b from-[#0a1220] to-[#070c15]"
     >
-      {/* status bar */}
-      <div className="mb-1.5 flex items-center justify-between px-1">
-        <span className="num text-[11px] font-semibold text-bone/90">2:47</span>
-        <div className="flex items-center gap-1.5">
-          {/* signal */}
+      {/* ---- status bar ---- */}
+      <div className="flex items-center justify-between px-6 pt-3.5">
+        <span className="num text-[12px] font-semibold tracking-tight text-bone">
+          2:47
+        </span>
+        <div className="flex items-center gap-[5px]">
           <span className="flex items-end gap-[2px]">
-            {[3, 5, 7, 9].map((h) => (
-              <span key={h} className="w-[2.5px] rounded-sm bg-bone/85" style={{ height: h }} />
+            {[4, 6, 8, 10].map((h) => (
+              <span
+                key={h}
+                className="w-[3px] rounded-[1px] bg-bone"
+                style={{ height: h }}
+              />
             ))}
           </span>
-          {/* wifi */}
-          <svg width="14" height="10" viewBox="0 0 14 10" aria-hidden="true">
+          <svg width="15" height="11" viewBox="0 0 15 11" aria-hidden="true">
             <path
-              d="M7 9.2 L2.2 4.4 A6.8 6.8 0 0 1 11.8 4.4 Z"
-              fill="rgba(232,236,244,0.85)"
+              d="M7.5 10.2 L2.6 5.3 A7.4 7.4 0 0 1 12.4 5.3 Z"
+              fill="#e8ecf4"
             />
           </svg>
-          {/* battery */}
           <span className="flex items-center gap-[1.5px]">
-            <span className="relative h-[10px] w-[19px] rounded-[3px] border border-bone/50">
-              <span className="absolute inset-[1.5px] right-[5px] rounded-[1.5px] bg-bone/85" />
+            <span className="relative h-[11px] w-[21px] rounded-[3.5px] border-[1.5px] border-bone/60">
+              <span className="absolute inset-[1.5px] right-[4px] rounded-[1px] bg-bone" />
             </span>
-            <span className="h-[4px] w-[1.5px] rounded-r-sm bg-bone/50" />
+            <span className="h-[4px] w-[1.5px] rounded-r-[1px] bg-bone/60" />
           </span>
         </div>
       </div>
 
       {/* dynamic island */}
-      <div className="absolute left-1/2 top-2.5 h-[22px] w-[84px] -translate-x-1/2 rounded-full bg-black" />
+      <div className="absolute left-1/2 top-3 h-[20px] w-[76px] -translate-x-1/2 rounded-full bg-black" />
 
-      <div className="mb-4 mt-3 flex items-center justify-between">
-        <span className="display text-[14px]">
-          BITRA<span className="text-ice">.</span>
-        </span>
-        <span className="pulse-dot" />
-      </div>
-
-      <p className="label text-faint">Portfolio value</p>
-      <p className="num mt-2 text-[30px] font-semibold leading-none">
-        ${fmtPrice(total)}
-      </p>
-      <p className={`num mt-2 text-[11px] font-semibold ${up ? "text-rise" : "text-fall"}`}>
-        {fmtDelta(btc.delta)} 24H
-      </p>
-
-      <div className="mt-4 h-[76px]">
-        <Sparkline id="BTC" width={240} height={76} areaOpacity={0.24} fluid />
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <span className="label rounded-xl bg-ice py-2.5 text-center text-void">Trade</span>
-        <span className="label rounded-xl bg-white/7 py-2.5 text-center text-bone">
-          Deposit
-        </span>
-      </div>
-
-      <div className="mt-4 space-y-1.5">
-        {["BTC", "AAPL", "NVDA"].map((id) => (
-          <Row key={id} id={id} />
-        ))}
-      </div>
-
-      <div className="mt-auto flex justify-around pt-3">
-        {["◈", "⌕", "⇄", "▤"].map((g, i) => (
-          <span key={i} className={`text-[13px] ${i === 0 ? "text-ice" : "text-faint"}`}>
-            {g}
+      {/* ---- app header: the mark lives in the display ---- */}
+      <div className="mt-4 flex items-center justify-between px-6">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/6 ring-1 ring-white/10">
+            <BitraMark size={17} />
           </span>
-        ))}
+          <span className="text-[14px] font-bold tracking-tight">
+            Bitra <span className="text-ice">Invest</span>
+          </span>
+          <span className="text-[9px] text-faint">▼</span>
+        </div>
+        <div className="flex items-center gap-3.5 text-[13px] text-mute">
+          <span>···</span>
+          <span className="relative">
+            ⌂
+            <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-ice" />
+          </span>
+        </div>
       </div>
 
-      {/* home indicator */}
-      <div className="mx-auto mt-2 h-[4px] w-[96px] rounded-full bg-bone/30" />
+      {/* ---- balance ---- */}
+      <div className="mt-4 px-6">
+        <p className="num text-[32px] font-bold leading-none tracking-tight">
+          ${fmtPrice(total)}
+        </p>
+        <p
+          className={`num mt-1.5 text-[10.5px] font-semibold ${up ? "text-rise" : "text-fall"}`}
+        >
+          {up ? "↗" : "↘"} {fmtDelta(btc.delta)} last 24h
+        </p>
+      </div>
+
+      {/* ---- pots ---- */}
+      <div className="mt-3.5 grid grid-cols-2 gap-2 px-5">
+        <div className="rounded-2xl bg-white/5 p-3">
+          <p className="label text-[8px] text-faint">Investments</p>
+          <p className="num mt-1 text-[13px] font-bold">${fmtPrice(invested)}</p>
+          <div className="mt-1.5 h-[34px]">
+            <Sparkline id="BTC" width={100} height={34} strokeWidth={1.4} areaOpacity={0.16} fluid />
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="rounded-2xl bg-white/5 p-3">
+            <p className="label text-[8px] text-faint">Crypto pot</p>
+            <p className="num mt-1 text-[13px] font-bold">$14,206.32</p>
+          </div>
+          <div className="rounded-2xl bg-white/5 p-3">
+            <p className="label text-[8px] text-faint">Spending pot</p>
+            <p className="num mt-1 text-[13px] font-bold">$7,224.23</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ---- watchlist sheet ---- */}
+      <div className="mt-4 flex-1 rounded-t-[1.6rem] bg-[#101928] px-5 pt-2.5">
+        <div className="mx-auto h-1 w-9 rounded-full bg-white/15" />
+        <div className="mt-2.5 flex items-center gap-2">
+          <span className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold text-bone">
+            Watchlist
+          </span>
+          <span className="px-2 py-1.5 text-[10px] font-medium text-faint">
+            Top movers
+          </span>
+          <span className="px-2 py-1.5 text-[10px] font-medium text-faint">
+            Losers
+          </span>
+        </div>
+        <div className="mt-1 divide-y divide-white/5">
+          {["BTC", "AAPL", "NVDA", "ETH"].map((id) => (
+            <WatchRow key={id} id={id} />
+          ))}
+        </div>
+      </div>
+
+      {/* ---- tab bar ---- */}
+      <div className="bg-[#101928] px-7 pb-2 pt-1">
+        <div className="flex items-center justify-between text-[13px]">
+          <span className="text-ice">⌂</span>
+          <span className="text-faint">◔</span>
+          <span className="text-faint">⌕</span>
+          <span className="text-faint">▭</span>
+          <span className="text-faint">▤</span>
+        </div>
+        <div className="mx-auto mt-1.5 h-[4px] w-[92px] rounded-full bg-bone/40" />
+      </div>
 
       {/* screen glass sheen */}
       <div
         className="pointer-events-none absolute inset-0 rounded-[2.4rem]"
         style={{
           background:
-            "linear-gradient(115deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 18%, transparent 32%)",
+            "linear-gradient(115deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 18%, transparent 32%)",
         }}
       />
     </div>
