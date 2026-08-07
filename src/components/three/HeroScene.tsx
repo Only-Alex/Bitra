@@ -233,7 +233,7 @@ export function HeroScene() {
   const riseLight = useRef<THREE.PointLight>(null);
 
   const phoneRimGeo = useMemo(
-    () => new THREE.TubeGeometry(roundedRectPath(PW, PH, 0.22) as never, 220, 0.012, 6, true),
+    () => new THREE.TubeGeometry(roundedRectPath(PW, PH, 0.22) as never, 260, 0.017, 8, true),
     [],
   );
   const panelRimGeo = useMemo(
@@ -269,7 +269,9 @@ export function HeroScene() {
     if (phone.current) {
       const g = phone.current;
       g.position.z = lerp(-5.6, -0.6, approach) + dive * 7.6;
-      g.position.x = lerp(mob ? 0 : -0.55, 0, approach) * (1 - dive);
+      // sits right of the headline at establish, drifts to centre as it
+      // rushes the camera so the dive stays axial
+      g.position.x = lerp(mob ? 0 : 2.45, 0, approach) * (1 - dive);
       g.position.y =
         lerp(mob ? 1.5 : 0.62, mob ? 0.3 : -0.02, approach) * (1 - dive) +
         Math.sin(t * 0.55) * idleAmp * (1 - dive);
@@ -292,7 +294,7 @@ export function HeroScene() {
     }
     if (phoneRimMat.current) {
       // additive rim is the bloom layer only; steel rail carries the rest
-      phoneRimMat.current.opacity = (0.12 + bloom * 0.75) * phoneFade;
+      phoneRimMat.current.opacity = (0.4 + bloom * 0.55) * phoneFade;
       phoneRimMat.current.color.copy(ICE).lerp(ICE_HI, bloom);
     }
     if (screenGlowMat.current) {
@@ -362,7 +364,7 @@ export function HeroScene() {
       <pointLight ref={riseLight} position={[0, 0.5, 3.2]} intensity={0.3} color="#a7d8ff" />
 
       {/* ---------- the Bitra phone — gateway into the markets ---------- */}
-      <group ref={phone} position={[-0.55, 0.62, -5.6]}>
+      <group ref={phone} position={[2.45, 0.62, -5.6]}>
         <RoundedBox args={[PW, PH, 0.1]} radius={0.22} smoothness={6}>
           <meshPhysicalMaterial
             ref={phoneMat}
@@ -391,15 +393,16 @@ export function HeroScene() {
           </mesh>
         ))}
 
-        {/* polished steel rail — catches the environment */}
+        {/* the border: a thin ice-blue edge tracing the screen perimeter */}
         <mesh geometry={phoneRimGeo}>
           <meshPhysicalMaterial
             ref={steelMat}
-            color="#3a4450"
-            metalness={1}
-            roughness={0.16}
-            clearcoat={1}
-            clearcoatRoughness={0.1}
+            color="#79bfff"
+            emissive="#79bfff"
+            emissiveIntensity={2.6}
+            metalness={0.35}
+            roughness={0.3}
+            toneMapped={false}
             transparent
           />
         </mesh>
