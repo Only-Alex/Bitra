@@ -1,20 +1,12 @@
-import { Magnetic } from "@/components/Magnetic";
-
-const LINKS = ["Markets", "Exchange", "Features", "Card"];
-
 export function Nav() {
   return (
-    <header data-nav className="fixed inset-x-0 top-0 z-50">
-      <div className="mx-auto flex h-[var(--nav-h)] max-w-[1720px] items-center justify-between px-6 md:px-10">
-        <a
-          href="#"
-          className="display text-[20px] leading-none tracking-[-0.03em]"
-        >
-          BITRA<span className="text-ember">.</span>
+    <header className="fixed inset-x-0 top-0 z-50">
+      <div className="mx-auto flex h-[var(--nav-h)] max-w-[1680px] items-center justify-between px-6 md:px-10">
+        <a href="#" className="display text-[19px] leading-none">
+          BITRA<span className="text-ice">.</span>
         </a>
-
-        <nav className="glass absolute left-1/2 hidden -translate-x-1/2 items-center gap-9 rounded-full px-9 py-3.5 lg:flex">
-          {LINKS.map((l) => (
+        <nav className="glass hidden items-center gap-8 rounded-full px-8 py-3 md:flex">
+          {["Exchange", "Markets", "Card"].map((l) => (
             <a
               key={l}
               href={`#${l.toLowerCase()}`}
@@ -24,21 +16,12 @@ export function Nav() {
             </a>
           ))}
         </nav>
-
-        <div className="flex items-center gap-7">
-          <span className="label hidden items-center gap-2.5 text-mute md:flex">
-            <span className="pulse-dot" />
-            Markets open
-          </span>
-          <Magnetic strength={0.25}>
-            <a
-              href="#cta"
-              className="label rounded-full bg-ember px-5.5 py-3 text-void transition-colors duration-300 hover:bg-ember-hi"
-            >
-              Launch app
-            </a>
-          </Magnetic>
-        </div>
+        <a
+          href="#exchange"
+          className="label rounded-full bg-ice px-5 py-3 text-void transition-colors duration-300 hover:bg-ice-hi"
+        >
+          Enter the exchange
+        </a>
       </div>
     </header>
   );

@@ -2,35 +2,38 @@
 
 /* ============================================================
    BITRA — design tokens
-   Near-black base, single amber accent ("ember"), glass surfaces.
+   Obsidian base, one icy electric blue. Nothing else.
    ============================================================ */
 
 @theme {
-  /* Base — deep navy-black, crypto.com register */
-  --color-void: #04080f;
-  --color-ink: #0a111f;
-  --color-ink-2: #0f182b;
-  --color-ink-3: #152238;
+  /* Base */
+  --color-void: #050508;
+  --color-ink: #090b12;
+  --color-ink-2: #0d1019;
+  --color-ink-3: #131722;
 
-  /* Accent — electric blue (t212 × crypto.com), token names unchanged */
-  --color-ember: #189ffb;
-  --color-ember-hi: #7fd0ff;
-  --color-ember-lo: #0b6bd4;
-  --color-flare: #00d5ff;
+  /* Accent — icy electric blue, committed */
+  --color-ice: #79bfff;
+  --color-ice-hi: #a7d8ff;
+  --color-ice-lo: #3d7fc4;
 
-  /* Market */
-  --color-rise: #2ce88a;
-  --color-fall: #ff4d61;
+  /* Legacy alias kept so chart components read the theme */
+  --color-ember: #79bfff;
+  --color-ember-hi: #a7d8ff;
+  --color-ember-lo: #3d7fc4;
 
-  /* Text — brightened for contrast/readability */
-  --color-bone: #f4f4f7;
-  --color-mute: #9a9aa8;
-  --color-faint: #6b6b7a;
+  /* Market semantics */
+  --color-rise: #4ade9c;
+  --color-fall: #ff5c6e;
+
+  /* Text — soft white, never pure across areas */
+  --color-bone: #e8ecf4;
+  --color-mute: #97a0b3;
+  --color-faint: #626b7d;
 
   /* Type */
   --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-editorial: var(--font-instrument), ui-serif, Georgia, serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
   /* Motion */
@@ -48,7 +51,7 @@
 }
 
 * {
-  border-color: color-mix(in srgb, white 8%, transparent);
+  border-color: color-mix(in srgb, white 9%, transparent);
 }
 
 html {
@@ -62,11 +65,10 @@ body {
   color: var(--color-bone);
   font-family: var(--font-body);
   overflow-x: hidden;
-  font-feature-settings: "ss01", "cv05", "tnum" 0;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-ember) 85%, transparent);
+  background: color-mix(in srgb, var(--color-ice) 80%, transparent);
   color: var(--color-void);
 }
 
@@ -90,43 +92,23 @@ html.lenis body {
   font-family: var(--font-display);
   font-weight: 700;
   font-stretch: 112%;
-  letter-spacing: -0.02em;
-  line-height: 0.92;
-  text-transform: uppercase;
-}
-
-/* calm sibling: sentence-case marketing headings, video-clean */
-.display-soft {
-  font-family: var(--font-display);
-  font-weight: 650;
-  font-stretch: 104%;
-  letter-spacing: -0.035em;
-  line-height: 1.04;
-}
-
-.editorial {
-  font-family: var(--font-editorial);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  text-transform: none;
-  line-height: 0.9;
+  letter-spacing: -0.03em;
+  line-height: 0.96;
 }
 
 .label {
   font-family: var(--font-mono);
   font-size: clamp(10px, 0.78vw, 12px);
   font-weight: 500;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-/* Mask-reveal wrapper: child translates up from behind the clip */
 .reveal-mask {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.06em;
-  margin-bottom: -0.06em;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
 }
 .reveal-line {
   display: block;
@@ -139,487 +121,58 @@ html.lenis body {
 
 .glass {
   background: color-mix(in srgb, white 3.5%, transparent);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border: 1px solid color-mix(in srgb, white 8%, transparent);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  border: 1px solid color-mix(in srgb, white 9%, transparent);
 }
 
 .hairline {
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in srgb, white 14%, transparent) 20%,
-    color-mix(in srgb, white 14%, transparent) 80%,
+    color-mix(in srgb, white 13%, transparent) 20%,
+    color-mix(in srgb, white 13%, transparent) 80%,
     transparent
   );
 }
 
-/* ============================================================
-   Cinematic placeholder field
-   Stands in for Seedance video assets at identical framing.
-   ============================================================ */
-
-.cine-field {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: var(--color-void);
-}
-
-.cine-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  will-change: transform;
-  mix-blend-mode: screen;
-}
-
-.cine-a {
-  width: 62vw;
-  height: 62vw;
-  left: 8%;
-  top: 6%;
-  background: radial-gradient(
-    circle at 40% 40%,
-    color-mix(in srgb, var(--color-ember) 82%, transparent),
-    color-mix(in srgb, var(--color-flare) 34%, transparent) 45%,
-    transparent 70%
-  );
-  animation: drift-a 34s var(--ease-power3) infinite alternate;
-}
-
-.cine-b {
-  width: 46vw;
-  height: 46vw;
-  right: 4%;
-  top: 24%;
-  background: radial-gradient(
-    circle at 55% 45%,
-    color-mix(in srgb, #e6e0ff 38%, transparent),
-    color-mix(in srgb, #8b7cf6 20%, transparent) 50%,
-    transparent 72%
-  );
-  animation: drift-b 44s var(--ease-power3) infinite alternate;
-}
-
-.cine-c {
-  width: 78vw;
-  height: 44vw;
-  left: 22%;
-  bottom: -18%;
-  background: radial-gradient(
-    ellipse at 50% 50%,
-    color-mix(in srgb, var(--color-ember-lo) 62%, transparent),
-    color-mix(in srgb, var(--color-flare) 20%, transparent) 40%,
-    transparent 66%
-  );
-  animation: drift-c 52s var(--ease-power3) infinite alternate;
-}
-
-/* Slow anamorphic sheen sweeping the frame */
-.cine-sheen {
-  position: absolute;
-  inset: -30%;
-  background: conic-gradient(
-    from 200deg at 50% 50%,
-    transparent 0deg,
-    color-mix(in srgb, var(--color-ember-hi) 14%, transparent) 40deg,
-    transparent 90deg,
-    transparent 300deg,
-    color-mix(in srgb, #cfe0ff 8%, transparent) 340deg,
-    transparent 360deg
-  );
-  animation: sheen 60s linear infinite;
-  filter: blur(48px);
-  will-change: transform;
-}
-
-@keyframes drift-a {
-  0% {
-    transform: translate3d(-6%, -4%, 0) scale(1);
-  }
-  100% {
-    transform: translate3d(10%, 8%, 0) scale(1.18);
-  }
-}
-@keyframes drift-b {
-  0% {
-    transform: translate3d(6%, 6%, 0) scale(1.1);
-  }
-  100% {
-    transform: translate3d(-10%, -8%, 0) scale(0.92);
-  }
-}
-@keyframes drift-c {
-  0% {
-    transform: translate3d(-8%, 4%, 0) scale(0.95);
-  }
-  100% {
-    transform: translate3d(8%, -6%, 0) scale(1.2);
-  }
-}
-@keyframes sheen {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Vignette + horizon fade so sections butt together seamlessly */
-.cine-vignette {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      ellipse 120% 90% at 50% 45%,
-      transparent 30%,
-      color-mix(in srgb, var(--color-void) 72%, transparent) 78%,
-      var(--color-void) 100%
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--color-void) 55%, transparent) 0%,
-      transparent 22%,
-      transparent 62%,
-      var(--color-void) 100%
-    );
-}
-
-/* Film grain */
-.grain {
-  position: absolute;
-  inset: -120%;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
-  opacity: 0.09;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  animation: grain-shift 0.8s steps(4) infinite;
-  will-change: transform;
-}
-
-@keyframes grain-shift {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  25% {
-    transform: translate3d(-3%, 2%, 0);
-  }
-  50% {
-    transform: translate3d(2%, -3%, 0);
-  }
-  75% {
-    transform: translate3d(-2%, -2%, 0);
-  }
-  100% {
-    transform: translate3d(3%, 1%, 0);
-  }
-}
-
-/* Live status dot */
-.pulse-dot {
-  position: relative;
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-ember);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--color-ember) 90%, transparent);
-}
-.pulse-dot::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--color-ember);
-  animation: pulse-ring 2.4s var(--ease-expo) infinite;
-}
-@keyframes pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-  70%,
-  100% {
-    transform: scale(3.6);
-    opacity: 0;
-  }
-}
-
-/* Scroll cue: a token travelling down a hairline */
-.scroll-rail {
-  position: relative;
-  width: 1px;
-  height: 56px;
-  background: color-mix(in srgb, white 12%, transparent);
-  overflow: hidden;
-}
-.scroll-rail::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 1px;
-  height: 22px;
-  background: linear-gradient(to bottom, transparent, var(--color-ember));
-  animation: rail 2.6s var(--ease-expo) infinite;
-}
-@keyframes rail {
-  0% {
-    transform: translateY(-24px);
-    opacity: 0;
-  }
-  30% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(58px);
-    opacity: 0;
-  }
-}
-
-/* ============================================================
-   Advanced motion primitives
-   ============================================================ */
-
-.char {
-  display: inline-block;
-  will-change: transform;
-}
-
-/* streaming ticker tape */
-.tape {
-  display: flex;
-  width: max-content;
-  animation: tape-scroll 38s linear infinite;
-  will-change: transform;
-}
-@keyframes tape-scroll {
-  to {
-    transform: translateX(-50%);
-  }
-}
-.tape-mask {
-  mask-image: linear-gradient(
-    90deg,
-    transparent,
-    black 8%,
-    black 92%,
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent,
-    black 8%,
-    black 92%,
-    transparent
-  );
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tape {
-    animation: none;
-  }
-}
-
-/* ============================================================
-   Section machinery
-   ============================================================ */
-
-/* giant outlined sequence numbers */
-.outline-num {
+/* ghosted background word */
+.ghost-word {
   font-family: var(--font-display);
   font-weight: 700;
-  font-stretch: 122%;
+  font-stretch: 112%;
   line-height: 0.8;
   color: transparent;
-  -webkit-text-stroke: 1.5px color-mix(in srgb, white 22%, transparent);
+  -webkit-text-stroke: 1.5px color-mix(in srgb, white 19%, transparent);
 }
 
-.persp {
-  perspective: 1500px;
-}
-
-/* Bridge token */
-.coin {
-  position: relative;
-  width: clamp(180px, 22vw, 300px);
-  aspect-ratio: 1;
-  border-radius: 50%;
+/* product-stage backdrop: vignette + faint perspective grid */
+.stage-bg {
   background:
     radial-gradient(
-      circle at 32% 28%,
-      color-mix(in srgb, var(--color-ember-hi) 85%, transparent),
-      var(--color-ember) 38%,
-      var(--color-ember-lo) 72%,
-      #6b3a00 100%
-    );
-  box-shadow:
-    0 0 80px color-mix(in srgb, var(--color-ember) 45%, transparent),
-    0 0 200px color-mix(in srgb, var(--color-flare) 25%, transparent),
-    inset 0 0 40px rgba(0, 0, 0, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+      ellipse 90% 70% at 50% 42%,
+      color-mix(in srgb, var(--color-ice) 5%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(to bottom, var(--color-void), var(--color-ink) 55%, var(--color-void));
 }
-.coin::before {
-  content: "";
-  position: absolute;
-  inset: 7%;
-  border-radius: 50%;
-  border: 1.5px solid color-mix(in srgb, var(--color-ember-hi) 55%, transparent);
-}
-.coin-glyph {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(64px, 8vw, 110px);
-  color: var(--color-void);
-  opacity: 0.85;
-}
-
-.particle {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-ember);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--color-ember) 80%, transparent);
-  opacity: 0;
-}
-
-/* Metal card */
-.bank-card {
-  position: relative;
-  width: min(560px, 82vw);
-  aspect-ratio: 1.586;
-  border-radius: 24px;
-  background:
-    linear-gradient(120deg, #121722 0%, #1b2232 38%, #0e131e 62%, #0a0e16 100%);
-  border: 1px solid color-mix(in srgb, white 14%, transparent);
-  box-shadow:
-    0 60px 120px -30px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 color-mix(in srgb, white 18%, transparent);
-  overflow: hidden;
-  transform-style: preserve-3d;
-}
-.bank-card::after {
-  content: "";
-  position: absolute;
-  inset: -40%;
-  background: linear-gradient(
-    105deg,
-    transparent 42%,
-    color-mix(in srgb, white 14%, transparent) 50%,
-    color-mix(in srgb, var(--color-ember) 10%, transparent) 54%,
-    transparent 62%
-  );
-  transform: translateX(-70%);
-}
-.card-chip {
-  width: 52px;
-  height: 40px;
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, var(--color-ember-hi), var(--color-ember-lo));
-  position: relative;
-  overflow: hidden;
-}
-.card-chip::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to bottom, transparent 30%, rgba(0, 0, 0, 0.25) 31%, transparent 33%),
-    linear-gradient(to right, transparent 46%, rgba(0, 0, 0, 0.25) 47%, transparent 49%);
-}
-
-/* order book depth bar */
-.depth {
-  position: absolute;
-  inset: 0 auto 0 0;
-  border-radius: 4px;
-}
-.depth-bid {
-  background: color-mix(in srgb, var(--color-rise) 10%, transparent);
-}
-.depth-ask {
-  background: color-mix(in srgb, var(--color-fall) 10%, transparent);
-}
-
-/* Glass portal — frosted gate floating in the hero field */
-.portal {
-  position: relative;
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.12),
-    rgba(255, 255, 255, 0.03) 55%,
-    rgba(255, 255, 255, 0.08)
-  );
-  backdrop-filter: blur(16px) saturate(135%);
-  -webkit-backdrop-filter: blur(16px) saturate(135%);
-  box-shadow:
-    0 0 70px color-mix(in srgb, var(--color-ember) 30%, transparent),
-    0 0 180px color-mix(in srgb, var(--color-flare) 14%, transparent),
-    inset 0 0 44px rgba(255, 255, 255, 0.09);
-}
-.portal::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 32px;
-  background: linear-gradient(
-    200deg,
-    color-mix(in srgb, var(--color-ember-hi) 55%, transparent),
-    transparent 30%,
-    transparent 70%,
-    color-mix(in srgb, var(--color-flare) 45%, transparent)
-  );
-  filter: blur(10px);
-  opacity: 0.5;
-  z-index: -1;
-}
-
-/* electric filaments drawn across the metal card */
-.filament {
-  stroke-dasharray: 340;
-  stroke-dashoffset: 340;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-ember) 80%, transparent));
-}
-
-/* How-it-works phone screens: overlaid in motion, first-only when static */
-.hiw-screen {
-  position: absolute;
-  inset: 0;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hiw-screen {
-    position: relative;
-  }
-  .hiw-screen:not(:first-child) {
-    display: none;
-  }
-}
-
-/* Feature blocks: static = stacked; motion = overlaid for crossfade */
-.feature-block {
-  position: relative;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .feature-block {
-    position: absolute;
-    inset: 0;
-  }
+.stage-grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-ice) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-ice) 7%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 55%, black 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 55%, black 20%, transparent 75%);
+  transform: perspective(900px) rotateX(55deg) translateY(12%);
+  transform-origin: 50% 100%;
 }
 
 /* ============================================================
-   Market UI
+   Market UI (exchange preview + later sections)
    ============================================================ */
 
 .num {
   font-variant-numeric: tabular-nums;
-}
-
-.tilt {
-  transform: perspective(1300px) rotateY(-7deg) rotateX(1.5deg);
 }
 
 .chip {
@@ -642,7 +195,6 @@ html.lenis body {
   background: color-mix(in srgb, var(--color-fall) 12%, transparent);
 }
 
-/* price flash on tick */
 .px {
   transition: color 0.5s ease;
 }
@@ -653,6 +205,79 @@ html.lenis body {
 .px-fall {
   color: var(--color-fall);
   transition: none;
+}
+
+.depth {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+}
+.depth-bid {
+  background: color-mix(in srgb, var(--color-rise) 10%, transparent);
+}
+.depth-ask {
+  background: color-mix(in srgb, var(--color-fall) 10%, transparent);
+}
+
+/* live status dot */
+.pulse-dot {
+  position: relative;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-ice);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-ice) 90%, transparent);
+}
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-ice);
+  animation: pulse-ring 2.4s var(--ease-expo) infinite;
+}
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(3.6);
+    opacity: 0;
+  }
+}
+
+/* scroll cue rail */
+.scroll-rail {
+  position: relative;
+  width: 1px;
+  height: 52px;
+  background: color-mix(in srgb, white 12%, transparent);
+  overflow: hidden;
+}
+.scroll-rail::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 20px;
+  background: linear-gradient(to bottom, transparent, var(--color-ice));
+  animation: rail 2.6s var(--ease-expo) infinite;
+}
+@keyframes rail {
+  0% {
+    transform: translateY(-22px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(54px);
+    opacity: 0;
+  }
 }
 
 /* ============================================================
@@ -667,14 +292,6 @@ html.lenis body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
-  }
-  .cine-blob,
-  .cine-sheen,
-  .grain {
-    animation: none !important;
-  }
-  .grain {
-    opacity: 0.1;
   }
   .scroll-rail::after {
     animation: none !important;

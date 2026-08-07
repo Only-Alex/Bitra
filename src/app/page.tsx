@@ -1,45 +1,26 @@
 import { Nav } from "@/components/Nav";
-import { NavMotion } from "@/components/NavMotion";
-import { MarketStrip } from "@/components/MarketStrip";
-import { TickerTape } from "@/components/TickerTape";
-import { Preloader } from "@/components/Preloader";
-import { Cursor } from "@/components/Cursor";
-import { Blurbs } from "@/components/Blurbs";
 import { Hero } from "@/sections/Hero";
-import { Bridge } from "@/sections/Bridge";
-import { HowItWorks } from "@/sections/HowItWorks";
-import { Exchange } from "@/sections/Exchange";
-import { ZeroBanner } from "@/sections/ZeroBanner";
-import { Features } from "@/sections/Features";
-import { ProductsTrio } from "@/sections/ProductsTrio";
-import { CardSection } from "@/sections/CardSection";
-import { TrustStrip } from "@/sections/TrustStrip";
-import { Faq } from "@/sections/Faq";
-import { Finale } from "@/sections/Finale";
+import { ExchangePreview } from "@/sections/ExchangePreview";
 
 export default function Home() {
   return (
     <>
-      <Preloader />
-      <Cursor />
       <Nav />
-      <NavMotion />
       <main>
         <Hero />
-        <TickerTape />
-        <Blurbs />
-        <MarketStrip />
-        <Bridge />
-        <HowItWorks />
-        <Exchange />
-        <ZeroBanner />
-        <Features />
-        <ProductsTrio />
-        <CardSection />
-        <TrustStrip />
-        <Faq />
-        <Finale />
+        <ExchangePreview />
       </main>
+      <footer className="px-6 pb-10 md:px-10">
+        <div className="hairline h-px" />
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-4 pt-8">
+          <span className="display text-[16px]">
+            BITRA<span className="text-ice">.</span>
+          </span>
+          <p className="label text-faint">
+            © 2026 Bitra · Products and availability may vary by jurisdiction
+          </p>
+        </div>
+      </footer>
     </>
   );
 }
