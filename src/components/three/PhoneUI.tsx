@@ -60,9 +60,39 @@ export function PhoneUI() {
   return (
     <div
       ref={ref}
-      className="pointer-events-none flex h-[600px] w-[280px] select-none flex-col overflow-hidden rounded-[2.4rem] bg-[#080d16] p-5"
+      className="pointer-events-none relative flex h-[600px] w-[280px] select-none flex-col overflow-hidden rounded-[2.4rem] bg-[#080d16] px-5 pb-4 pt-3"
     >
-      <div className="mb-5 flex items-center justify-between">
+      {/* status bar */}
+      <div className="mb-1.5 flex items-center justify-between px-1">
+        <span className="num text-[11px] font-semibold text-bone/90">2:47</span>
+        <div className="flex items-center gap-1.5">
+          {/* signal */}
+          <span className="flex items-end gap-[2px]">
+            {[3, 5, 7, 9].map((h) => (
+              <span key={h} className="w-[2.5px] rounded-sm bg-bone/85" style={{ height: h }} />
+            ))}
+          </span>
+          {/* wifi */}
+          <svg width="14" height="10" viewBox="0 0 14 10" aria-hidden="true">
+            <path
+              d="M7 9.2 L2.2 4.4 A6.8 6.8 0 0 1 11.8 4.4 Z"
+              fill="rgba(232,236,244,0.85)"
+            />
+          </svg>
+          {/* battery */}
+          <span className="flex items-center gap-[1.5px]">
+            <span className="relative h-[10px] w-[19px] rounded-[3px] border border-bone/50">
+              <span className="absolute inset-[1.5px] right-[5px] rounded-[1.5px] bg-bone/85" />
+            </span>
+            <span className="h-[4px] w-[1.5px] rounded-r-sm bg-bone/50" />
+          </span>
+        </div>
+      </div>
+
+      {/* dynamic island */}
+      <div className="absolute left-1/2 top-2.5 h-[22px] w-[84px] -translate-x-1/2 rounded-full bg-black" />
+
+      <div className="mb-4 mt-3 flex items-center justify-between">
         <span className="display text-[14px]">
           BITRA<span className="text-ice">.</span>
         </span>
@@ -101,6 +131,18 @@ export function PhoneUI() {
           </span>
         ))}
       </div>
+
+      {/* home indicator */}
+      <div className="mx-auto mt-2 h-[4px] w-[96px] rounded-full bg-bone/30" />
+
+      {/* screen glass sheen */}
+      <div
+        className="pointer-events-none absolute inset-0 rounded-[2.4rem]"
+        style={{
+          background:
+            "linear-gradient(115deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 18%, transparent 32%)",
+        }}
+      />
     </div>
   );
 }

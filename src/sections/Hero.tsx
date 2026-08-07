@@ -74,6 +74,7 @@ export function Hero() {
         tl.to("[data-cue]", { autoAlpha: 0, duration: 0.06 }, 0.1)
           // copy dims only after the object has clearly started moving
           .to("[data-open-copy]", { autoAlpha: 0, y: -44, duration: 0.14 }, 0.16)
+          .to("[data-space]", { autoAlpha: 0, duration: 0.12 }, 0.4)
           .to("[data-stage]", { autoAlpha: 1, duration: 0.14 }, 0.44)
           .to("[data-world]", { autoAlpha: 1, duration: 0.12 }, 0.45)
           .fromTo(
@@ -156,7 +157,7 @@ export function Hero() {
             { autoAlpha: 1, y: 0 },
           );
           gsap.set("[data-ghost]", { autoAlpha: 0.35 });
-          gsap.set("[data-cue], [data-handoff]", { autoAlpha: 0 });
+          gsap.set("[data-cue], [data-handoff], [data-space]", { autoAlpha: 0 });
         },
       );
 
@@ -178,6 +179,25 @@ export function Hero() {
               "linear-gradient(to bottom, #04060c 0%, #090b12 45%, #050508 100%)",
           }}
         />
+        {/* generated space plate — the opening world */}
+        <div data-space className="absolute inset-0">
+          <video
+            className="h-full w-full object-cover"
+            src="/videos/space.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            aria-hidden="true"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(5,5,8,0.55) 0%, transparent 30%, transparent 60%, rgba(5,5,8,0.85) 100%)",
+            }}
+          />
+        </div>
         <div data-stage className="stage-bg absolute inset-0 opacity-0">
           <div className="stage-grid absolute inset-x-0 bottom-0 h-[60%]" />
         </div>

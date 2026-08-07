@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { RoundedBox, Html } from "@react-three/drei";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { heroState, seg, lerp, ease } from "@/lib/motion/heroProgress";
 import { PhoneUI } from "./PhoneUI";
 
@@ -126,6 +127,21 @@ const MH = 2.15;
 
 export function HeroScene() {
   const tex = useEnvTextures();
+  const { gl, scene } = useThree();
+
+  // image-based lighting so the metal frame picks up believable
+  // reflections — generated locally, no network HDRI
+  useEffect(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const envTex = pmrem.fromScene(new RoomEnvironment(), 0.06).texture;
+    scene.environment = envTex;
+    scene.environmentIntensity = 0.35;
+    return () => {
+      scene.environment = null;
+      envTex.dispose();
+      pmrem.dispose();
+    };
+  }, [gl, scene]);
 
   const phone = useRef<THREE.Group>(null);
   const phoneMat = useRef<THREE.MeshPhysicalMaterial>(null);
@@ -269,14 +285,30 @@ export function HeroScene() {
         <RoundedBox args={[PW, PH, 0.13]} radius={0.3} smoothness={6}>
           <meshPhysicalMaterial
             ref={phoneMat}
-            color="#0c1017"
-            metalness={0.9}
-            roughness={0.24}
-            clearcoat={0.8}
-            clearcoatRoughness={0.2}
+            color="#11151d"
+            metalness={0.92}
+            roughness={0.18}
+            clearcoat={1}
+            clearcoatRoughness={0.12}
             transparent
           />
         </RoundedBox>
+
+        {/* side buttons — titanium rail details */}
+        {[
+          { x: PW / 2 + 0.008, y: 0.75, h: 0.34 },
+          { x: -PW / 2 - 0.008, y: 0.95, h: 0.22 },
+          { x: -PW / 2 - 0.008, y: 0.62, h: 0.22 },
+        ].map((b, i) => (
+          <mesh key={i} position={[b.x, b.y, 0]}>
+            <boxGeometry args={[0.025, b.h, 0.055]} />
+            <meshPhysicalMaterial
+              color="#1a202c"
+              metalness={0.95}
+              roughness={0.25}
+            />
+          </mesh>
+        ))}
 
         {/* luminous rim — the object's identity */}
         <mesh geometry={phoneRimGeo}>
@@ -310,7 +342,7 @@ export function HeroScene() {
         <Html
           transform
           position={[0, 0, 0.072]}
-          scale={0.21}
+          scale={0.215}
           zIndexRange={[30, 0]}
           style={{ pointerEvents: "none" }}
         >
@@ -386,30 +418,10 @@ export function HeroScene() {
         />
       </mesh>
 
-      {/* ---------- moonlit obsidian environment ---------- */}
+      {/* ---------- atmospheric depth over the space plate ---------- */}
       <group ref={env}>
-        <mesh position={[3.4, 2.6, -14]} scale={[2.2, 2.2, 1]} userData={{ baseOpacity: 0.75 }}>
-          <planeGeometry />
-          <meshBasicMaterial
-            map={tex.glow}
-            color="#d8e8f8"
-            transparent
-            opacity={0.75}
-            blending={THREE.AdditiveBlending}
-            toneMapped={false}
-            depthWrite={false}
-          />
-        </mesh>
-        <mesh position={[-1, -2.1, -9]} scale={[26, 4.4, 1]} userData={{ baseOpacity: 0.9 }}>
-          <planeGeometry />
-          <meshBasicMaterial map={tex.ridge2} color="#0a0d14" transparent opacity={0.9} depthWrite={false} />
-        </mesh>
-        <mesh position={[1.5, -2.4, -6]} scale={[20, 3.6, 1]} userData={{ baseOpacity: 1 }}>
-          <planeGeometry />
-          <meshBasicMaterial map={tex.ridge1} color="#06080d" transparent opacity={1} depthWrite={false} />
-        </mesh>
-        <FogBand tex={tex.fog} y={-1.9} z={-5} speed={0.014} opacity={0.13} />
-        <FogBand tex={tex.fog} y={-2.2} z={-3.4} speed={-0.01} opacity={0.1} />
+        <FogBand tex={tex.fog} y={-1.9} z={-5} speed={0.014} opacity={0.11} />
+        <FogBand tex={tex.fog} y={-2.2} z={-3.4} speed={-0.01} opacity={0.08} />
         <mesh
           position={[-2.6, 1.2, -8]}
           rotation={[0, 0, 0.5]}
