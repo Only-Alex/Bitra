@@ -52,6 +52,20 @@ export function Hero() {
           },
         });
 
+        // only the visible plate spends decode cycles
+        const spaceVid = root.current?.querySelector<HTMLVideoElement>("[data-space] video");
+        const worldVid = root.current?.querySelector<HTMLVideoElement>("[data-world] video");
+        const syncVideos = (p: number) => {
+          if (spaceVid) {
+            if (p > 0.55 && !spaceVid.paused) spaceVid.pause();
+            else if (p <= 0.55 && spaceVid.paused) void spaceVid.play().catch(() => {});
+          }
+          if (worldVid) {
+            if (p > 0.4 && worldVid.paused) void worldVid.play().catch(() => {});
+            else if (p <= 0.4 && !worldVid.paused) worldVid.pause();
+          }
+        };
+
         // the master progress value — the 3D scene reads this each frame
         tl.to(
           proxy,
@@ -65,6 +79,7 @@ export function Hero() {
               lastP = proxy.p;
               lastT = now;
               heroState.p = proxy.p;
+              syncVideos(proxy.p);
             },
           },
           0,
@@ -84,13 +99,7 @@ export function Hero() {
             { scale: 1.04, duration: 0.3, ease: "power1.out" },
             0.45,
           )
-          .to("[data-world] video", { scale: 1.1, duration: 0.25 }, 0.75)
-          .fromTo(
-            "[data-stage] .stage-grid",
-            { yPercent: 10 },
-            { yPercent: 0, duration: 0.3 },
-            0.45,
-          );
+          .to("[data-world] video", { scale: 1.1, duration: 0.25 }, 0.75);
 
         tl.to("[data-cue]", { autoAlpha: 0, duration: 0.06 }, 0.1)
           // copy dims only after the object has clearly started moving
@@ -98,13 +107,6 @@ export function Hero() {
           .to("[data-space]", { autoAlpha: 0, duration: 0.12 }, 0.4)
           .to("[data-stage]", { autoAlpha: 1, duration: 0.14 }, 0.44)
           .to("[data-world]", { autoAlpha: 1, duration: 0.12 }, 0.45)
-          .fromTo(
-            "[data-cap]",
-            { autoAlpha: 0, y: 18 },
-            { autoAlpha: 1, y: 0, duration: 0.06, stagger: 0.015, ease: "power2.out" },
-            0.6,
-          )
-          .to("[data-cap]", { autoAlpha: 0.3, duration: 0.08 }, 0.9)
           .fromTo(
             "[data-ghost]",
             { autoAlpha: 0 },
@@ -157,7 +159,7 @@ export function Hero() {
                 heroState.px = e.clientX / window.innerWidth - 0.5;
                 heroState.py = e.clientY / window.innerHeight - 0.5;
               };
-              window.addEventListener("mousemove", onMove);
+              window.addEventListener("mousemove", onMove, { passive: true });
               return () => {
                 window.removeEventListener("mousemove", onMove);
                 tl.scrollTrigger?.kill();
@@ -174,7 +176,7 @@ export function Hero() {
           heroState.frozen = true;
           heroState.p = 0.8;
           gsap.set(
-            "[data-open-copy], [data-copy-a], [data-copy-b], [data-stage], [data-world], [data-cap]",
+            "[data-open-copy], [data-copy-a], [data-copy-b], [data-stage], [data-world]",
             { autoAlpha: 1, y: 0 },
           );
           gsap.set("[data-ghost]", { autoAlpha: 0.35 });
@@ -182,8 +184,10 @@ export function Hero() {
         },
       );
 
+      // pin measurements are only stable once media and fonts are in
       const onLoad = () => ScrollTrigger.refresh();
       window.addEventListener("load", onLoad);
+      document.fonts?.ready.then(() => ScrollTrigger.refresh());
       return () => window.removeEventListener("load", onLoad);
     },
     { scope: root },
@@ -219,9 +223,7 @@ export function Hero() {
             }}
           />
         </div>
-        <div data-stage className="stage-bg absolute inset-0 opacity-0">
-          <div className="stage-grid absolute inset-x-0 bottom-0 h-[60%]" />
-        </div>
+        <div data-stage className="stage-bg absolute inset-0 opacity-0" />
         {/* generated world plate — the market world inside the phone */}
         <div data-world className="absolute inset-0 opacity-0">
           <video
@@ -313,20 +315,6 @@ export function Hero() {
           </h2>
           <p className="mt-3 text-[16px] text-mute">More ways to move.</p>
         </div>
-
-        {/* capability constellation inside the world */}
-        <ul
-          data-caps
-          className="absolute inset-x-0 bottom-[6vh] flex flex-wrap items-center justify-center gap-x-9 gap-y-3 px-6"
-        >
-          {["01 — Trade", "02 — Borrow", "03 — Stake", "04 — Swap", "05 — Spend"].map(
-            (c) => (
-              <li key={c} className="label text-faint opacity-0" data-cap>
-                {c}
-              </li>
-            ),
-          )}
-        </ul>
 
         {/* market hand-off */}
         <div

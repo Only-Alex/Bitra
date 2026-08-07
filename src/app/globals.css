@@ -32,7 +32,7 @@
   --color-faint: #626b7d;
 
   /* Type */
-  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
@@ -91,9 +91,8 @@ html.lenis body {
 .display {
   font-family: var(--font-display);
   font-weight: 700;
-  font-stretch: 112%;
-  letter-spacing: -0.03em;
-  line-height: 0.96;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
 }
 
 .label {
@@ -140,13 +139,12 @@ html.lenis body {
 .ghost-word {
   font-family: var(--font-display);
   font-weight: 700;
-  font-stretch: 112%;
   line-height: 0.8;
   color: transparent;
   -webkit-text-stroke: 1.5px color-mix(in srgb, white 19%, transparent);
 }
 
-/* product-stage backdrop: vignette + faint perspective grid */
+/* product-stage backdrop: vignette only — the ghost word carries it */
 .stage-bg {
   background:
     radial-gradient(
@@ -156,15 +154,12 @@ html.lenis body {
     ),
     linear-gradient(to bottom, var(--color-void), var(--color-ink) 55%, var(--color-void));
 }
-.stage-grid {
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--color-ice) 7%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--color-ice) 7%, transparent) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: radial-gradient(ellipse 70% 55% at 50% 55%, black 20%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 55%, black 20%, transparent 75%);
-  transform: perspective(900px) rotateX(55deg) translateY(12%);
-  transform-origin: 50% 100%;
+
+/* quality floor: keyboard focus is always visible */
+:focus-visible {
+  outline: 2px solid var(--color-ice);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 /* ============================================================

@@ -204,18 +204,30 @@ export function CandleChart({ id, height = 320 }: CandleChartProps) {
       }
     };
 
-    if (reduced) {
+    // spend frames only while the chart is actually on screen
+    let visible = false;
+    const loop = () => {
       draw();
-    } else {
-      const loop = () => {
-        draw();
-        raf = requestAnimationFrame(loop);
-      };
-      raf = requestAnimationFrame(loop);
-    }
+      raf = visible ? requestAnimationFrame(loop) : 0;
+    };
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (reduced) {
+        if (visible) draw();
+        return;
+      }
+      if (visible && !raf) raf = requestAnimationFrame(loop);
+      if (!visible && raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    });
+    io.observe(canvas);
+    if (reduced) draw();
 
     return () => {
       cancelAnimationFrame(raf);
+      io.disconnect();
       ro.disconnect();
       canvas.removeEventListener("mousemove", onMove);
       canvas.removeEventListener("mouseleave", onLeave);
