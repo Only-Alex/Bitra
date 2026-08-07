@@ -75,6 +75,14 @@ export function Hero() {
           // copy dims only after the object has clearly started moving
           .to("[data-open-copy]", { autoAlpha: 0, y: -44, duration: 0.14 }, 0.16)
           .to("[data-stage]", { autoAlpha: 1, duration: 0.14 }, 0.44)
+          .to("[data-world]", { autoAlpha: 1, duration: 0.12 }, 0.45)
+          .fromTo(
+            "[data-cap]",
+            { autoAlpha: 0, y: 18 },
+            { autoAlpha: 1, y: 0, duration: 0.06, stagger: 0.015, ease: "power2.out" },
+            0.6,
+          )
+          .to("[data-cap]", { autoAlpha: 0.3, duration: 0.08 }, 0.9)
           .fromTo(
             "[data-ghost]",
             { autoAlpha: 0 },
@@ -143,10 +151,10 @@ export function Hero() {
           // reduced motion: static settled composition, everything readable
           heroState.frozen = true;
           heroState.p = 0.8;
-          gsap.set("[data-open-copy], [data-copy-a], [data-copy-b], [data-stage]", {
-            autoAlpha: 1,
-            y: 0,
-          });
+          gsap.set(
+            "[data-open-copy], [data-copy-a], [data-copy-b], [data-stage], [data-world], [data-cap]",
+            { autoAlpha: 1, y: 0 },
+          );
           gsap.set("[data-ghost]", { autoAlpha: 0.35 });
           gsap.set("[data-cue], [data-handoff]", { autoAlpha: 0 });
         },
@@ -172,6 +180,26 @@ export function Hero() {
         />
         <div data-stage className="stage-bg absolute inset-0 opacity-0">
           <div className="stage-grid absolute inset-x-0 bottom-0 h-[60%]" />
+        </div>
+        {/* generated world plate — the market world inside the phone */}
+        <div data-world className="absolute inset-0 opacity-0">
+          <video
+            className="h-full w-full object-cover"
+            src="/videos/world.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="none"
+            aria-hidden="true"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 120% 90% at 50% 45%, transparent 30%, rgba(5,5,8,0.75) 80%, #050508 100%)",
+            }}
+          />
         </div>
         {/* ghosted word, deep behind the object */}
         <div
@@ -244,6 +272,20 @@ export function Hero() {
           </h2>
           <p className="mt-3 text-[16px] text-mute">More ways to move.</p>
         </div>
+
+        {/* capability constellation inside the world */}
+        <ul
+          data-caps
+          className="absolute inset-x-0 bottom-[6vh] flex flex-wrap items-center justify-center gap-x-9 gap-y-3 px-6"
+        >
+          {["01 — Trade", "02 — Borrow", "03 — Stake", "04 — Swap", "05 — Spend"].map(
+            (c) => (
+              <li key={c} className="label text-faint opacity-0" data-cap>
+                {c}
+              </li>
+            ),
+          )}
+        </ul>
 
         {/* market hand-off */}
         <div

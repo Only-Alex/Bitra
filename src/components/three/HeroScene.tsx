@@ -3,13 +3,14 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { RoundedBox } from "@react-three/drei";
+import { RoundedBox, Html } from "@react-three/drei";
 import { heroState, seg, lerp, ease } from "@/lib/motion/heroProgress";
+import { PhoneUI } from "./PhoneUI";
 
 const ICE = new THREE.Color("#79bfff");
 const ICE_HI = new THREE.Color("#a7d8ff");
 
-/* ---------- procedural textures (client-only, cheap, generated once) ---------- */
+/* ---------- procedural textures (client-only, generated once) ---------- */
 
 function canvasTexture(
   w: number,
@@ -27,7 +28,6 @@ function canvasTexture(
 
 function useEnvTextures() {
   return useMemo(() => {
-    // soft radial glow (moon, halos, fog puffs)
     const glow = canvasTexture(256, 256, (ctx) => {
       const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
       g.addColorStop(0, "rgba(255,255,255,1)");
@@ -37,7 +37,6 @@ function useEnvTextures() {
       ctx.fillRect(0, 0, 256, 256);
     });
 
-    // ridge silhouette with a seeded random walk crest
     const ridge = (seed: number, jag: number) =>
       canvasTexture(1024, 256, (ctx) => {
         let y = 110 + seed * 30;
@@ -56,7 +55,6 @@ function useEnvTextures() {
         ctx.fill();
       });
 
-    // wide soft fog band
     const fog = canvasTexture(512, 128, (ctx) => {
       const g = ctx.createLinearGradient(0, 0, 0, 128);
       g.addColorStop(0, "rgba(255,255,255,0)");
@@ -70,7 +68,7 @@ function useEnvTextures() {
   }, []);
 }
 
-/* ---------- rounded-rect helpers for the rim tube + lattice ---------- */
+/* ---------- rounded-rect path for rim tubes + lattice ---------- */
 
 function roundedRectPath(w: number, h: number, r: number): THREE.CurvePath<THREE.Vector3> {
   const hw = w / 2;
@@ -99,7 +97,6 @@ function prand(i: number, salt: number) {
   return x - Math.floor(x);
 }
 
-/** lattice: deterministic network of segments across the card face */
 function latticeGeometry(w: number, h: number): THREE.BufferGeometry {
   const nodes: [number, number][] = [];
   for (let i = 0; i < 14; i++) {
@@ -107,7 +104,6 @@ function latticeGeometry(w: number, h: number): THREE.BufferGeometry {
   }
   const positions: number[] = [];
   for (let i = 0; i < nodes.length; i++) {
-    // connect each node to its two nearest neighbours
     const dists = nodes
       .map((n, j) => ({ j, d: Math.hypot(n[0] - nodes[i][0], n[1] - nodes[i][1]) }))
       .filter((e) => e.j !== i)
@@ -122,33 +118,42 @@ function latticeGeometry(w: number, h: number): THREE.BufferGeometry {
   return geo;
 }
 
-/* ---------- card dimensions (portrait) ---------- */
-const CW = 2.15;
-const CH = 3.4;
+/* phone (portrait) and market panel (landscape glass) dimensions */
+const PW = 2.05;
+const PH = 4.2;
+const MW = 3.4;
+const MH = 2.15;
 
 export function HeroScene() {
   const tex = useEnvTextures();
 
-  const card = useRef<THREE.Group>(null);
-  const bodyMat = useRef<THREE.MeshPhysicalMaterial>(null);
-  const rimMat = useRef<THREE.MeshBasicMaterial>(null);
-  const glowMat = useRef<THREE.MeshBasicMaterial>(null);
-  const flashMat = useRef<THREE.MeshBasicMaterial>(null);
+  const phone = useRef<THREE.Group>(null);
+  const phoneMat = useRef<THREE.MeshPhysicalMaterial>(null);
+  const phoneRimMat = useRef<THREE.MeshBasicMaterial>(null);
+  const screenGlowMat = useRef<THREE.MeshBasicMaterial>(null);
+
+  const panel = useRef<THREE.Group>(null);
+  const panelMat = useRef<THREE.MeshPhysicalMaterial>(null);
+  const panelRimMat = useRef<THREE.MeshBasicMaterial>(null);
   const lattice = useRef<THREE.LineSegments>(null);
   const latMat = useRef<THREE.LineBasicMaterial>(null);
+
+  const flashMat = useRef<THREE.MeshBasicMaterial>(null);
+  const haloMat = useRef<THREE.MeshBasicMaterial>(null);
   const env = useRef<THREE.Group>(null);
   const keyLight = useRef<THREE.DirectionalLight>(null);
-  const cardLight = useRef<THREE.PointLight>(null);
+  const riseLight = useRef<THREE.PointLight>(null);
 
-  const rimGeo = useMemo(
-    () => new THREE.TubeGeometry(roundedRectPath(CW, CH, 0.16) as never, 220, 0.018, 6, true),
+  const phoneRimGeo = useMemo(
+    () => new THREE.TubeGeometry(roundedRectPath(PW, PH, 0.3) as never, 220, 0.016, 6, true),
     [],
   );
-  const latGeo = useMemo(() => latticeGeometry(CW, CH), []);
-  const latTotal = useMemo(
-    () => latGeo.getAttribute("position").count,
-    [latGeo],
+  const panelRimGeo = useMemo(
+    () => new THREE.TubeGeometry(roundedRectPath(MW, MH, 0.14) as never, 220, 0.016, 6, true),
+    [],
   );
+  const latGeo = useMemo(() => latticeGeometry(MW, MH), []);
+  const latTotal = useMemo(() => latGeo.getAttribute("position").count, [latGeo]);
 
   const smoothing = useRef({ px: 0, py: 0, idle: 1 });
 
@@ -156,8 +161,8 @@ export function HeroScene() {
     const t = state.clock.elapsedTime;
     const p = heroState.p;
     const s = smoothing.current;
+    const mob = heroState.mobile;
 
-    /* pointer smoothing + influence ducking while scrolling */
     const duck = Math.max(0, 1 - heroState.vel * 14);
     s.idle += (duck - s.idle) * 0.05;
     const phaseInfluence = p < 0.14 ? 1 : p < 0.48 ? 0.5 : 0.35;
@@ -165,75 +170,77 @@ export function HeroScene() {
     s.px += (heroState.px * infl - s.px) * 0.06;
     s.py += (heroState.py * infl - s.py) * 0.06;
 
-    /* ---- object trajectory ---- */
-    const approach = ease(seg(p, 0.14, 0.34));
-    const threshold = ease(seg(p, 0.34, 0.48));
-    const settle = ease(seg(p, 0.48, 0.66));
+    const approach = ease(seg(p, 0.14, 0.36));
+    const dive = Math.pow(seg(p, 0.38, 0.5), 1.7);
+    const bloom = Math.sin(Math.min(1, seg(p, 0.32, 0.52)) * Math.PI);
+    const settle = ease(seg(p, 0.48, 0.68));
     const handoff = ease(seg(p, 0.88, 1.0));
+    const idleAmp = heroState.frozen ? 0.02 : 0.045 * s.idle;
 
-    if (card.current) {
-      const g = card.current;
-      // Z: far establish → toward camera → slight recede on settle
-      g.position.z =
-        lerp(-5.6, -0.4, approach) + lerp(0, -0.55, settle) + lerp(0, 2.4, handoff);
-      // X: left-of-centre establish → centre through threshold
-      const mob = heroState.mobile;
-      g.position.x = lerp(mob ? 0 : -0.55, 0.15, approach) + lerp(0, -0.15, settle);
-      // idle float, ducked by scroll velocity; starts high so copy stays clear
-      const idleAmp = heroState.frozen ? 0.02 : 0.045 * s.idle;
+    /* ---- phone: establish → approach → dive through the screen ---- */
+    if (phone.current) {
+      const g = phone.current;
+      g.position.z = lerp(-5.6, -0.6, approach) + dive * 7.6;
+      g.position.x = lerp(mob ? 0 : -0.55, 0, approach) * (1 - dive);
       g.position.y =
-        lerp(mob ? 1.5 : 0.62, mob ? 0.35 : -0.05, approach) +
-        Math.sin(t * 0.55) * idleAmp;
-      g.scale.setScalar(mob ? 0.72 : 1);
-
-      // rotation: portrait upright → landscape/diagonal, continuous
-      g.rotation.z = lerp(0, -1.32, threshold) + lerp(0, 0.1, settle);
+        lerp(mob ? 1.5 : 0.62, mob ? 0.3 : -0.02, approach) * (1 - dive) +
+        Math.sin(t * 0.55) * idleAmp * (1 - dive);
       g.rotation.y =
-        Math.sin(t * 0.4) * 0.05 * s.idle * (1 - threshold) +
-        lerp(0, 0.32, threshold) -
-        lerp(0, 0.12, settle) +
-        s.px;
-      g.rotation.x = lerp(0, -0.1, settle) + s.py * 0.7;
-
-      // handoff: recede into the DOM exchange window
-      const fade = 1 - handoff;
-      g.visible = fade > 0.02;
+        Math.sin(t * 0.4) * 0.05 * s.idle * (1 - approach * 0.6) + s.px;
+      g.rotation.x = s.py * 0.7;
+      g.rotation.z = lerp(0, 0.05, dive);
+      g.scale.setScalar(mob ? 0.72 : 1);
+      g.visible = p < 0.52;
     }
-
-    /* rim + bloom: intensify into the threshold, relax after */
-    const bloom = Math.sin(Math.min(1, seg(p, 0.3, 0.52)) * Math.PI);
-
-    if (bodyMat.current) {
-      // translucent gateway → white-hot at the threshold → solid dark metal
-      bodyMat.current.opacity = lerp(0.42, 1, ease(seg(p, 0.3, 0.55)));
-      bodyMat.current.emissiveIntensity = 0.06 + bloom * 1.35 * (1 - settle * 0.85);
+    if (phoneMat.current) {
+      phoneMat.current.opacity = 1 - seg(p, 0.46, 0.51);
     }
-    if (rimMat.current) {
-      rimMat.current.opacity = (0.55 + bloom * 0.45) * (1 - handoff);
-      rimMat.current.color.copy(ICE).lerp(ICE_HI, bloom);
+    if (phoneRimMat.current) {
+      phoneRimMat.current.opacity = (0.55 + bloom * 0.45) * (1 - seg(p, 0.46, 0.51));
+      phoneRimMat.current.color.copy(ICE).lerp(ICE_HI, bloom);
     }
-    if (glowMat.current) {
-      glowMat.current.opacity = 0.14 + bloom * 0.3 - handoff * 0.3;
+    if (screenGlowMat.current) {
+      // the screen itself goes white-hot as you fall into it
+      screenGlowMat.current.opacity = bloom * 0.85 * (1 - seg(p, 0.47, 0.52));
     }
     if (flashMat.current) {
-      flashMat.current.opacity = Math.pow(bloom, 2.4) * 0.16;
+      flashMat.current.opacity = Math.pow(bloom, 2.4) * 0.18;
     }
-    if (cardLight.current) {
-      cardLight.current.intensity = 0.3 + bloom * 3.2;
+    if (haloMat.current) {
+      haloMat.current.opacity = (0.12 + bloom * 0.3) * (1 - seg(p, 0.47, 0.54));
+    }
+    if (riseLight.current) {
+      riseLight.current.intensity = 0.3 + bloom * 3;
     }
 
-    /* lattice draw-in 0.72–0.88, light pulse after */
+    /* ---- glass market panel inside the world ---- */
+    if (panel.current) {
+      const g = panel.current;
+      g.visible = p > 0.44 && handoff < 0.98;
+      g.position.z = lerp(-3.4, -0.9, settle) + lerp(0, 2.4, handoff);
+      g.position.x = lerp(0.5, -0.12, settle);
+      g.position.y = Math.sin(t * 0.5) * idleAmp * 0.8;
+      g.rotation.z = lerp(-0.3, -0.16, settle);
+      g.rotation.y = lerp(0.5, 0.24, settle) + s.px;
+      g.rotation.x = lerp(-0.2, -0.1, settle) + s.py * 0.7;
+      g.scale.setScalar(mob ? 0.78 : 1);
+    }
+    if (panelMat.current) {
+      panelMat.current.opacity = settle * 0.55 * (1 - handoff);
+    }
+    if (panelRimMat.current) {
+      panelRimMat.current.opacity = settle * 0.8 * (1 - handoff);
+    }
     if (lattice.current && latMat.current) {
       const draw = seg(p, 0.72, 0.88);
       lattice.current.geometry.setDrawRange(0, Math.floor(latTotal * draw));
-      latMat.current.opacity =
-        draw * (0.85 + Math.sin(t * 2.1) * 0.15) * (1 - handoff);
+      latMat.current.opacity = draw * (0.85 + Math.sin(t * 2.1) * 0.15) * (1 - handoff);
     }
 
-    /* environment: parallax recession then dissolve at the threshold */
+    /* ---- moonlit valley: parallax recession, dissolve at the dive ---- */
     if (env.current) {
       env.current.position.z = lerp(0, 1.1, approach);
-      const envFade = 1 - ease(seg(p, 0.4, 0.56));
+      const envFade = 1 - ease(seg(p, 0.38, 0.5));
       env.current.traverse((o) => {
         const m = (o as THREE.Mesh).material as THREE.Material | undefined;
         if (m && "opacity" in m) {
@@ -244,7 +251,6 @@ export function HeroScene() {
       env.current.visible = envFade > 0.01;
     }
 
-    /* key light swings slowly at rest so reflections keep moving */
     if (keyLight.current) {
       const a = t * 0.12;
       keyLight.current.position.set(Math.sin(a) * 4 - 2, 3, Math.cos(a) * 2 + 4);
@@ -254,36 +260,28 @@ export function HeroScene() {
   return (
     <>
       <ambientLight intensity={0.22} color="#3a5a80" />
-      <directionalLight
-        ref={keyLight}
-        position={[-2, 3, 4]}
-        intensity={1.1}
-        color="#9fcfff"
-      />
+      <directionalLight ref={keyLight} position={[-2, 3, 4]} intensity={1.1} color="#9fcfff" />
       <directionalLight position={[3, -2, -3]} intensity={0.35} color="#2a4a70" />
-      <pointLight ref={cardLight} position={[0, 0.5, 3.2]} intensity={0.3} color="#a7d8ff" />
+      <pointLight ref={riseLight} position={[0, 0.5, 3.2]} intensity={0.3} color="#a7d8ff" />
 
-      {/* ---------- the continuous Bitra object ---------- */}
-      <group ref={card} position={[-0.55, 0.62, -5.6]}>
-        <RoundedBox args={[CW, CH, 0.08]} radius={0.09} smoothness={6}>
+      {/* ---------- the Bitra phone — gateway into the markets ---------- */}
+      <group ref={phone} position={[-0.55, 0.62, -5.6]}>
+        <RoundedBox args={[PW, PH, 0.13]} radius={0.3} smoothness={6}>
           <meshPhysicalMaterial
-            ref={bodyMat}
+            ref={phoneMat}
             color="#0c1017"
-            metalness={0.85}
-            roughness={0.26}
-            clearcoat={0.7}
-            clearcoatRoughness={0.22}
+            metalness={0.9}
+            roughness={0.24}
+            clearcoat={0.8}
+            clearcoatRoughness={0.2}
             transparent
-            opacity={0.42}
-            emissive="#7fb4e8"
-            emissiveIntensity={0.06}
           />
         </RoundedBox>
 
-        {/* luminous rim */}
-        <mesh geometry={rimGeo}>
+        {/* luminous rim — the object's identity */}
+        <mesh geometry={phoneRimGeo}>
           <meshBasicMaterial
-            ref={rimMat}
+            ref={phoneRimMat}
             color="#79bfff"
             transparent
             opacity={0.6}
@@ -293,8 +291,74 @@ export function HeroScene() {
           />
         </mesh>
 
-        {/* embedded data lattice, drawn in by scroll */}
-        <lineSegments ref={lattice} geometry={latGeo} position={[0, 0, 0.05]}>
+        {/* screen bloom plate, behind the DOM screen */}
+        <mesh position={[0, 0, 0.068]} scale={[PW * 0.93, PH * 0.95, 1]}>
+          <planeGeometry />
+          <meshBasicMaterial
+            ref={screenGlowMat}
+            map={tex.glow}
+            color="#cfe8ff"
+            transparent
+            opacity={0}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+
+        {/* live app UI — sharp DOM mapped onto the screen */}
+        <Html
+          transform
+          position={[0, 0, 0.072]}
+          scale={0.21}
+          zIndexRange={[30, 0]}
+          style={{ pointerEvents: "none" }}
+        >
+          <PhoneUI />
+        </Html>
+
+        {/* halo */}
+        <mesh position={[0, 0, -0.5]} scale={[5.6, 7.4, 1]}>
+          <planeGeometry />
+          <meshBasicMaterial
+            ref={haloMat}
+            map={tex.glow}
+            color="#79bfff"
+            transparent
+            opacity={0.12}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      </group>
+
+      {/* ---------- glass market panel, inside the world ---------- */}
+      <group ref={panel} visible={false}>
+        <RoundedBox args={[MW, MH, 0.05]} radius={0.14} smoothness={6}>
+          <meshPhysicalMaterial
+            ref={panelMat}
+            color="#101623"
+            metalness={0.4}
+            roughness={0.15}
+            clearcoat={0.9}
+            clearcoatRoughness={0.1}
+            transparent
+            opacity={0}
+          />
+        </RoundedBox>
+        <mesh geometry={panelRimGeo}>
+          <meshBasicMaterial
+            ref={panelRimMat}
+            color="#79bfff"
+            transparent
+            opacity={0}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+        <lineSegments ref={lattice} geometry={latGeo} position={[0, 0, 0.035]}>
           <lineBasicMaterial
             ref={latMat}
             color="#a7d8ff"
@@ -305,24 +369,9 @@ export function HeroScene() {
             depthWrite={false}
           />
         </lineSegments>
-
-        {/* halo behind the card */}
-        <mesh position={[0, 0, -0.4]} scale={[5.2, 6.4, 1]}>
-          <planeGeometry />
-          <meshBasicMaterial
-            ref={glowMat}
-            map={tex.glow}
-            color="#79bfff"
-            transparent
-            opacity={0.16}
-            blending={THREE.AdditiveBlending}
-            toneMapped={false}
-            depthWrite={false}
-          />
-        </mesh>
       </group>
 
-      {/* threshold flash — radial, never a full-frame clip */}
+      {/* threshold flash — radial, capped, never full-frame */}
       <mesh position={[0, 0, 4.6]} scale={[14, 9, 1]}>
         <planeGeometry />
         <meshBasicMaterial
@@ -339,7 +388,6 @@ export function HeroScene() {
 
       {/* ---------- moonlit obsidian environment ---------- */}
       <group ref={env}>
-        {/* moon */}
         <mesh position={[3.4, 2.6, -14]} scale={[2.2, 2.2, 1]} userData={{ baseOpacity: 0.75 }}>
           <planeGeometry />
           <meshBasicMaterial
@@ -352,35 +400,22 @@ export function HeroScene() {
             depthWrite={false}
           />
         </mesh>
-
-        {/* ridgelines at split depths */}
         <mesh position={[-1, -2.1, -9]} scale={[26, 4.4, 1]} userData={{ baseOpacity: 0.9 }}>
           <planeGeometry />
-          <meshBasicMaterial
-            map={tex.ridge2}
-            color="#0a0d14"
-            transparent
-            opacity={0.9}
-            depthWrite={false}
-          />
+          <meshBasicMaterial map={tex.ridge2} color="#0a0d14" transparent opacity={0.9} depthWrite={false} />
         </mesh>
         <mesh position={[1.5, -2.4, -6]} scale={[20, 3.6, 1]} userData={{ baseOpacity: 1 }}>
           <planeGeometry />
-          <meshBasicMaterial
-            map={tex.ridge1}
-            color="#06080d"
-            transparent
-            opacity={1}
-            depthWrite={false}
-          />
+          <meshBasicMaterial map={tex.ridge1} color="#06080d" transparent opacity={1} depthWrite={false} />
         </mesh>
-
-        {/* drifting ground fog */}
         <FogBand tex={tex.fog} y={-1.9} z={-5} speed={0.014} opacity={0.13} />
         <FogBand tex={tex.fog} y={-2.2} z={-3.4} speed={-0.01} opacity={0.1} />
-
-        {/* narrow volumetric beam */}
-        <mesh position={[-2.6, 1.2, -8]} rotation={[0, 0, 0.5]} scale={[1.6, 10, 1]} userData={{ baseOpacity: 0.05 }}>
+        <mesh
+          position={[-2.6, 1.2, -8]}
+          rotation={[0, 0, 0.5]}
+          scale={[1.6, 10, 1]}
+          userData={{ baseOpacity: 0.05 }}
+        >
           <planeGeometry />
           <meshBasicMaterial
             map={tex.fog}
