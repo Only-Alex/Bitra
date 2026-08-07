@@ -71,6 +71,27 @@ export function Hero() {
         );
 
         /* DOM choreography on the same clock (positions = story progress) */
+        // background breathes with the dive — same clock, so reverse is exact
+        tl.fromTo(
+          "[data-space] video",
+          { scale: 1.02, yPercent: 0 },
+          { scale: 1.18, yPercent: -3.5, duration: 0.44 },
+          0,
+        )
+          .fromTo(
+            "[data-world] video",
+            { scale: 1.3 },
+            { scale: 1.04, duration: 0.3, ease: "power1.out" },
+            0.45,
+          )
+          .to("[data-world] video", { scale: 1.1, duration: 0.25 }, 0.75)
+          .fromTo(
+            "[data-stage] .stage-grid",
+            { yPercent: 10 },
+            { yPercent: 0, duration: 0.3 },
+            0.45,
+          );
+
         tl.to("[data-cue]", { autoAlpha: 0, duration: 0.06 }, 0.1)
           // copy dims only after the object has clearly started moving
           .to("[data-open-copy]", { autoAlpha: 0, y: -44, duration: 0.14 }, 0.16)

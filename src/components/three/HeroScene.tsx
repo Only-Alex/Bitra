@@ -65,7 +65,77 @@ function useEnvTextures() {
       ctx.fillRect(0, 0, 512, 128);
     });
 
-    return { glow, ridge1: ridge(1, 6), ridge2: ridge(2, 9), fog };
+    // Bitra card face: brushed anodized icy metal, engraved wordmark, chip
+    const card = canvasTexture(1024, 648, (ctx) => {
+      const base = ctx.createLinearGradient(0, 0, 1024, 648);
+      base.addColorStop(0, "#131c2c");
+      base.addColorStop(0.45, "#1a2740");
+      base.addColorStop(1, "#0e1626");
+      ctx.fillStyle = base;
+      ctx.fillRect(0, 0, 1024, 648);
+
+      // brushed streaks
+      for (let i = 0; i < 900; i++) {
+        const y = Math.random() * 648;
+        const a = Math.random() * 0.045;
+        ctx.strokeStyle = `rgba(${Math.random() > 0.5 ? "200,225,255" : "10,14,24"},${a})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-20, y);
+        ctx.lineTo(1044, y + (Math.random() - 0.5) * 3);
+        ctx.stroke();
+      }
+
+      // diagonal light sweep
+      const sweep = ctx.createLinearGradient(0, 0, 1024, 648);
+      sweep.addColorStop(0.3, "rgba(160,205,255,0)");
+      sweep.addColorStop(0.5, "rgba(160,205,255,0.10)");
+      sweep.addColorStop(0.7, "rgba(160,205,255,0)");
+      ctx.fillStyle = sweep;
+      ctx.fillRect(0, 0, 1024, 648);
+
+      // chip — contact pads
+      const cx = 118;
+      const cy = 250;
+      const chipGrad = ctx.createLinearGradient(cx, cy, cx + 150, cy + 118);
+      chipGrad.addColorStop(0, "#4a5568");
+      chipGrad.addColorStop(0.5, "#8a97ad");
+      chipGrad.addColorStop(1, "#3d4757");
+      ctx.fillStyle = chipGrad;
+      ctx.beginPath();
+      ctx.roundRect(cx, cy, 150, 118, 16);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(10,14,24,0.55)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(cx + 10, cy + 10, 130, 98, 10);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx + 75, cy + 10);
+      ctx.lineTo(cx + 75, cy + 108);
+      ctx.moveTo(cx + 10, cy + 44);
+      ctx.lineTo(cx + 140, cy + 44);
+      ctx.moveTo(cx + 10, cy + 76);
+      ctx.lineTo(cx + 140, cy + 76);
+      ctx.stroke();
+
+      // engraved wordmark: dark inset + light lower edge
+      ctx.font = "700 92px Arial, sans-serif";
+      ctx.fillStyle = "rgba(8,12,20,0.7)";
+      ctx.fillText("BITRA.", 96, 512);
+      ctx.fillStyle = "rgba(170,210,250,0.35)";
+      ctx.fillText("BITRA.", 96, 515);
+
+      // debit marker
+      ctx.font = "600 30px Arial, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillStyle = "rgba(215,232,250,0.55)";
+      ctx.fillText("DEBIT", 950, 560);
+      ctx.textAlign = "left";
+    });
+    card.anisotropy = 8;
+
+    return { glow, ridge1: ridge(1, 6), ridge2: ridge(2, 9), fog, card };
   }, []);
 }
 
@@ -146,6 +216,8 @@ export function HeroScene() {
   const phone = useRef<THREE.Group>(null);
   const phoneMat = useRef<THREE.MeshPhysicalMaterial>(null);
   const phoneRimMat = useRef<THREE.MeshBasicMaterial>(null);
+  const steelMat = useRef<THREE.MeshPhysicalMaterial>(null);
+  const darkHaloMat = useRef<THREE.MeshBasicMaterial>(null);
   const screenGlowMat = useRef<THREE.MeshBasicMaterial>(null);
 
   const panel = useRef<THREE.Group>(null);
@@ -208,11 +280,19 @@ export function HeroScene() {
       g.scale.setScalar(mob ? 0.72 : 1);
       g.visible = p < 0.52;
     }
+    const phoneFade = 1 - seg(p, 0.46, 0.51);
     if (phoneMat.current) {
-      phoneMat.current.opacity = 1 - seg(p, 0.46, 0.51);
+      phoneMat.current.opacity = phoneFade;
+    }
+    if (steelMat.current) {
+      steelMat.current.opacity = phoneFade;
+    }
+    if (darkHaloMat.current) {
+      darkHaloMat.current.opacity = 0.38 * (1 - approach * 0.5) * phoneFade;
     }
     if (phoneRimMat.current) {
-      phoneRimMat.current.opacity = (0.55 + bloom * 0.45) * (1 - seg(p, 0.46, 0.51));
+      // additive rim is the bloom layer only; steel rail carries the rest
+      phoneRimMat.current.opacity = (0.12 + bloom * 0.75) * phoneFade;
       phoneRimMat.current.color.copy(ICE).lerp(ICE_HI, bloom);
     }
     if (screenGlowMat.current) {
@@ -242,7 +322,8 @@ export function HeroScene() {
       g.scale.setScalar(mob ? 0.78 : 1);
     }
     if (panelMat.current) {
-      panelMat.current.opacity = settle * 0.55 * (1 - handoff);
+      // solid brushed-metal card once settled
+      panelMat.current.opacity = settle * (1 - handoff);
     }
     if (panelRimMat.current) {
       panelRimMat.current.opacity = settle * 0.8 * (1 - handoff);
@@ -310,15 +391,41 @@ export function HeroScene() {
           </mesh>
         ))}
 
-        {/* luminous rim — the object's identity */}
+        {/* polished steel rail — catches the environment */}
         <mesh geometry={phoneRimGeo}>
+          <meshPhysicalMaterial
+            ref={steelMat}
+            color="#3a4450"
+            metalness={1}
+            roughness={0.16}
+            clearcoat={1}
+            clearcoatRoughness={0.1}
+            transparent
+          />
+        </mesh>
+
+        {/* luminous rim — bloom layer only */}
+        <mesh geometry={phoneRimGeo} scale={[1.004, 1.002, 1.2]}>
           <meshBasicMaterial
             ref={phoneRimMat}
             color="#79bfff"
             transparent
-            opacity={0.6}
+            opacity={0.12}
             blending={THREE.AdditiveBlending}
             toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+
+        {/* dark separation halo against the bright sky */}
+        <mesh position={[0, -0.1, -0.45]} scale={[4.6, 6.2, 1]}>
+          <planeGeometry />
+          <meshBasicMaterial
+            ref={darkHaloMat}
+            map={tex.glow}
+            color="#01030a"
+            transparent
+            opacity={0.38}
             depthWrite={false}
           />
         </mesh>
@@ -365,16 +472,17 @@ export function HeroScene() {
         </mesh>
       </group>
 
-      {/* ---------- glass market panel, inside the world ---------- */}
+      {/* ---------- the Bitra card, inside the world ---------- */}
       <group ref={panel} visible={false}>
         <RoundedBox args={[MW, MH, 0.05]} radius={0.14} smoothness={6}>
           <meshPhysicalMaterial
             ref={panelMat}
-            color="#101623"
-            metalness={0.4}
-            roughness={0.15}
-            clearcoat={0.9}
-            clearcoatRoughness={0.1}
+            map={tex.card}
+            color="#ffffff"
+            metalness={0.72}
+            roughness={0.34}
+            clearcoat={0.7}
+            clearcoatRoughness={0.25}
             transparent
             opacity={0}
           />
