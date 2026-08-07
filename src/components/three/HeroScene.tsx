@@ -190,8 +190,8 @@ function latticeGeometry(w: number, h: number): THREE.BufferGeometry {
 }
 
 /* phone (portrait) and market panel (landscape glass) dimensions */
-const PW = 2.05;
-const PH = 4.2;
+const PW = 1.98;
+const PH = 4.14;
 const MW = 3.4;
 const MH = 2.15;
 
@@ -233,7 +233,7 @@ export function HeroScene() {
   const riseLight = useRef<THREE.PointLight>(null);
 
   const phoneRimGeo = useMemo(
-    () => new THREE.TubeGeometry(roundedRectPath(PW, PH, 0.3) as never, 220, 0.016, 6, true),
+    () => new THREE.TubeGeometry(roundedRectPath(PW, PH, 0.22) as never, 220, 0.012, 6, true),
     [],
   );
   const panelRimGeo = useMemo(
@@ -363,7 +363,7 @@ export function HeroScene() {
 
       {/* ---------- the Bitra phone — gateway into the markets ---------- */}
       <group ref={phone} position={[-0.55, 0.62, -5.6]}>
-        <RoundedBox args={[PW, PH, 0.13]} radius={0.3} smoothness={6}>
+        <RoundedBox args={[PW, PH, 0.1]} radius={0.22} smoothness={6}>
           <meshPhysicalMaterial
             ref={phoneMat}
             color="#11151d"
@@ -431,7 +431,7 @@ export function HeroScene() {
         </mesh>
 
         {/* screen bloom plate, behind the DOM screen */}
-        <mesh position={[0, 0, 0.068]} scale={[PW * 0.93, PH * 0.95, 1]}>
+        <mesh position={[0, 0, 0.052]} scale={[PW * 0.97, PH * 0.97, 1]}>
           <planeGeometry />
           <meshBasicMaterial
             ref={screenGlowMat}
@@ -448,8 +448,8 @@ export function HeroScene() {
         {/* live app UI — sharp DOM mapped onto the screen */}
         <Html
           transform
-          position={[0, 0, 0.072]}
-          scale={0.215}
+          position={[0, 0, 0.056]}
+          scale={0.26}
           zIndexRange={[30, 0]}
           style={{ pointerEvents: "none" }}
         >
