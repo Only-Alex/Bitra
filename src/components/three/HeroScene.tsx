@@ -3,7 +3,9 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import { heroState, seg, lerp, ease } from "@/lib/motion/heroProgress";
+import { PhoneUI } from "./PhoneUI";
 
 /* ---------- procedural atmosphere (glow sprites + fog bands) ---------- */
 
@@ -60,9 +62,9 @@ function useArtwork(url: string) {
 
 /* Artwork aspect ratios (source pixel dimensions) */
 const PHONE_H = 4.3;
-const PHONE_W = PHONE_H * (774 / 1500);
+const PHONE_W = PHONE_H * (774 / 1498);
 const CARD_W = 3.5;
-const CARD_H = CARD_W * (958 / 1600);
+const CARD_H = CARD_W * (1008 / 1600);
 
 export function HeroScene() {
   const atm = useAtmosphere();
@@ -183,8 +185,20 @@ export function HeroScene() {
           />
         </mesh>
 
+        {/* live app screen, sized to the artwork's screen region (measured:
+            5.2% side insets) so the render supplies only the hardware */}
+        <Html
+          transform
+          position={[0, 0, 0.006]}
+          scale={0.249}
+          zIndexRange={[30, 0]}
+          style={{ pointerEvents: "none" }}
+        >
+          <PhoneUI />
+        </Html>
+
         {/* screen goes white-hot as the camera falls into it */}
-        <mesh position={[0, 0, 0.01]} scale={[PHONE_W * 0.92, PHONE_H * 0.94, 1]}>
+        <mesh position={[0, 0, 0.012]} scale={[PHONE_W * 0.92, PHONE_H * 0.94, 1]}>
           <planeGeometry />
           <meshBasicMaterial
             ref={screenGlowMat}
