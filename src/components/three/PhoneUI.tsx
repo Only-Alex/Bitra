@@ -89,7 +89,12 @@ export function PhoneUI() {
     <div
       ref={ref}
       className="pointer-events-none flex h-[655px] w-[320px] select-none flex-col overflow-hidden"
-      style={{ background: "linear-gradient(#121a28, #0d1420)" }}
+      style={{
+        background: "linear-gradient(#121a28, #0d1420)",
+        // matches the device screen's corner radius in the artwork, so the
+        // overlay clips inside the bezel instead of squaring off over it
+        borderRadius: "46px",
+      }}
     >
       {/* status bar */}
       <div className="flex items-center justify-between px-6 pt-3">
