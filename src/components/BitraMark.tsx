@@ -1,7 +1,7 @@
 /**
- * The Bitra mark — "gateway tick". The rounded portal ring (the same
- * silhouette as the hero object's rim) with a market line breaking out
- * through its right edge: crypto enters, equity exits. Reads at 16px.
+ * The Bitra mark — two arrows chasing a loop, the crypto/equity round
+ * trip. Traced from the supplied card and app artwork so the nav, the
+ * card face and the app icon all carry the same logo.
  */
 export function BitraMark({
   size = 24,
@@ -20,30 +20,42 @@ export function BitraMark({
       aria-hidden="true"
     >
       <defs>
-        <linearGradient id="bm-ring" x1="0" y1="32" x2="32" y2="0">
-          <stop offset="0" stopColor="#3d7fc4" />
-          <stop offset="1" stopColor="#a7d8ff" />
+        <linearGradient id="bm-a" x1="4" y1="6" x2="28" y2="16">
+          <stop offset="0" stopColor="#a7d8ff" />
+          <stop offset="1" stopColor="#2f6ea8" />
+        </linearGradient>
+        <linearGradient id="bm-b" x1="26" y1="18" x2="5" y2="29">
+          <stop offset="0" stopColor="#59b6f5" />
+          <stop offset="1" stopColor="#1d8ad6" />
         </linearGradient>
       </defs>
-      {/* portal ring, broken where the line exits */}
+
+      {/* upper arrow: sweeps right, turns down into the loop */}
       <path
-        d="M25 3.5 H11 A7.5 7.5 0 0 0 3.5 11 v10 A7.5 7.5 0 0 0 11 28.5 h10 a7.5 7.5 0 0 0 7.5 -7.5 v-4.5"
-        stroke="url(#bm-ring)"
-        strokeWidth="2.6"
+        d="M7 10.5 H19.5 a5 5 0 0 1 5 5 v1.2"
+        stroke="url(#bm-a)"
+        strokeWidth="3.1"
         strokeLinecap="round"
       />
-      {/* the market line, exiting the gateway */}
       <path
-        d="M9 21 L14 15.5 L18 18.5 L29.5 6.5"
-        stroke="#e8ecf4"
-        strokeWidth="2.6"
+        d="M15.6 6.9 L19.9 10.5 L15.6 14.1"
+        stroke="url(#bm-a)"
+        strokeWidth="3.1"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+
+      {/* lower arrow: returns left, closing the round trip */}
       <path
-        d="M24 6 h5.8 v5.8"
-        stroke="#e8ecf4"
-        strokeWidth="2.6"
+        d="M25 21.5 H12.5 a5 5 0 0 1 -5 -5 v-1.2"
+        stroke="url(#bm-b)"
+        strokeWidth="3.1"
+        strokeLinecap="round"
+      />
+      <path
+        d="M16.4 25.1 L12.1 21.5 L16.4 17.9"
+        stroke="url(#bm-b)"
+        strokeWidth="3.1"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
