@@ -254,7 +254,13 @@ export function Hero() {
           className="absolute inset-x-0 top-1/2 -translate-y-1/2 select-none overflow-hidden text-center opacity-0"
           aria-hidden="true"
         >
-          <span className="ghost-word whitespace-nowrap text-[26vw]">BITRA</span>
+          {/* the real lockup, held far back as a watermark */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/logo.png"
+            alt=""
+            className="mx-auto w-[62vw] max-w-none opacity-[0.13]"
+          />
         </div>
       </div>
 
