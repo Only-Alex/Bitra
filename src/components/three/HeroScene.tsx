@@ -65,11 +65,14 @@ const PHONE_H = 4.3;
 const PHONE_W = PHONE_H * (774 / 1498);
 const CARD_W = 3.5;
 const CARD_H = CARD_W * (1008 / 1600);
+const LAPTOP_W = 4.3;
+const LAPTOP_H = LAPTOP_W * (900 / 1600);
 
 export function HeroScene() {
   const atm = useAtmosphere();
   const phoneArt = useArtwork("/textures/phone.png");
   const cardArt = useArtwork("/textures/card.png");
+  const laptopArt = useArtwork("/textures/laptop.png");
 
   const phone = useRef<THREE.Group>(null);
   const phoneMat = useRef<THREE.MeshBasicMaterial>(null);
@@ -79,6 +82,9 @@ export function HeroScene() {
   const card = useRef<THREE.Group>(null);
   const cardMat = useRef<THREE.MeshBasicMaterial>(null);
   const cardGlowMat = useRef<THREE.MeshBasicMaterial>(null);
+
+  const laptop = useRef<THREE.Group>(null);
+  const laptopMat = useRef<THREE.MeshBasicMaterial>(null);
 
   const flashMat = useRef<THREE.MeshBasicMaterial>(null);
   const env = useRef<THREE.Group>(null);
@@ -131,24 +137,51 @@ export function HeroScene() {
       flashMat.current.opacity = Math.pow(bloom, 2.4) * 0.16;
     }
 
-    /* ---- card: settles inside the world, turning slowly ---- */
+    /* ---- card settles and turns, then hands off to the laptop ----
+       Both objects share one rotation: the card keeps turning until it is
+       edge-on and swaps out exactly as the laptop turns in from the other
+       side, so the change of object reads as a single continuous move. */
+    const swap = ease(seg(p, 0.70, 0.84));
+
     if (card.current) {
       const g = card.current;
-      g.visible = p > 0.44 && handoff < 0.98;
-      const turn = settle * (1 - handoff);
-      g.position.z = lerp(-3.4, -0.6, settle) + lerp(0, 2.6, handoff);
+      g.visible = p > 0.44 && swap < 0.99;
+      const turn = settle * (1 - swap);
+      g.position.z = lerp(-3.4, -0.6, settle) + swap * 1.2;
       g.position.x = lerp(0.4, -0.05, settle);
-      g.position.y = Math.sin(t * 0.5) * idleAmp * 0.8;
+      g.position.y = Math.sin(t * 0.5) * idleAmp * 0.8 + swap * 0.5;
       g.rotation.z = lerp(-0.26, -0.1, settle) + Math.sin(t * 0.21) * 0.04 * turn;
       g.rotation.y =
-        lerp(0.45, 0.16, settle) + s.px + Math.sin(t * 0.34) * 0.34 * turn;
+        lerp(0.45, 0.16, settle) +
+        s.px +
+        Math.sin(t * 0.34) * 0.34 * turn +
+        swap * 1.45; // carry on into edge-on
       g.rotation.x =
         lerp(-0.18, -0.06, settle) + s.py * 0.6 + Math.cos(t * 0.27) * 0.09 * turn;
-      g.scale.setScalar(mob ? 0.78 : 1);
+      g.scale.setScalar((mob ? 0.78 : 1) * lerp(1, 0.82, swap));
     }
-    if (cardMat.current) cardMat.current.opacity = settle * (1 - handoff);
+    if (cardMat.current) {
+      cardMat.current.opacity = settle * (1 - ease(seg(p, 0.72, 0.80)));
+    }
     if (cardGlowMat.current) {
-      cardGlowMat.current.opacity = settle * 0.3 * (1 - handoff);
+      cardGlowMat.current.opacity = settle * 0.3 * (1 - swap);
+    }
+
+    /* ---- laptop: emerges out of the card's turn, then leads the exit ---- */
+    if (laptop.current) {
+      const g = laptop.current;
+      g.visible = swap > 0.01;
+      // completes the rotation the card began, arriving square to camera
+      g.rotation.y = lerp(-1.35, 0, swap) + s.px * 0.5;
+      g.rotation.x = lerp(0.16, 0, swap) + s.py * 0.35;
+      g.rotation.z = lerp(0.1, 0, swap);
+      g.position.z = lerp(-3.2, -1.4, swap) + handoff * 1.1;
+      g.position.x = lerp(-0.3, 0, swap);
+      g.position.y = lerp(-0.35, 0, swap) + Math.sin(t * 0.45) * idleAmp * 0.6;
+      g.scale.setScalar((mob ? 0.72 : 1) * lerp(0.72, 1, swap));
+    }
+    if (laptopMat.current) {
+      laptopMat.current.opacity = ease(seg(p, 0.72, 0.86)) * (1 - handoff * 0.85);
     }
 
     /* ---- atmosphere recedes through the dive ---- */
@@ -250,6 +283,21 @@ export function HeroScene() {
             transparent
             opacity={0}
             blending={THREE.AdditiveBlending}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      </group>
+
+      {/* ---------- the Bitra terminal ---------- */}
+      <group ref={laptop} visible={false}>
+        <mesh>
+          <planeGeometry args={[LAPTOP_W, LAPTOP_H]} />
+          <meshBasicMaterial
+            ref={laptopMat}
+            map={laptopArt}
+            transparent
+            opacity={0}
             toneMapped={false}
             depthWrite={false}
           />

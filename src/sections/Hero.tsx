@@ -5,27 +5,11 @@ import dynamic from "next/dynamic";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/motion/gsap";
 import { heroState } from "@/lib/motion/heroProgress";
-import { fmtPrice, useQuote } from "@/lib/market";
-import { LiveChart } from "@/components/charts/LiveChart";
 
 const HeroCanvas = dynamic(
   () => import("@/components/three/HeroCanvas").then((m) => m.HeroCanvas),
   { ssr: false },
 );
-
-function HandoffPanel() {
-  const btc = useQuote("BTC");
-  return (
-    <div className="glass w-[min(560px,86vw)] rounded-2xl p-5">
-      <div className="mb-3 flex items-center justify-between">
-        <p className="label text-faint">BTC / USD · Live</p>
-        <span className="num text-[15px] font-semibold">${fmtPrice(btc.price)}</span>
-      </div>
-      <LiveChart id="BTC" height={180} />
-      <p className="label mt-4 text-center text-faint">Entering the exchange</p>
-    </div>
-  );
-}
 
 export function Hero() {
   const root = useRef<HTMLElement>(null);
@@ -130,12 +114,6 @@ export function Hero() {
             { autoAlpha: 1, y: 0, duration: 0.1, ease: "power2.out" },
             0.58,
           )
-          .fromTo(
-            "[data-handoff]",
-            { autoAlpha: 0, scale: 0.62 },
-            { autoAlpha: 1, scale: 1, duration: 0.12, ease: "power2.out" },
-            0.88,
-          )
           .to("[data-copy-a], [data-copy-b]", { autoAlpha: 0.25, duration: 0.1 }, 0.9);
 
         return tl;
@@ -184,7 +162,7 @@ export function Hero() {
             { autoAlpha: 1, y: 0 },
           );
           gsap.set("[data-ghost]", { autoAlpha: 0.35 });
-          gsap.set("[data-cue], [data-handoff], [data-space]", { autoAlpha: 0 });
+          gsap.set("[data-cue], [data-space]", { autoAlpha: 0 });
         },
       );
 
@@ -326,13 +304,6 @@ export function Hero() {
           <p className="mt-3 text-[16px] text-mute">More ways to move.</p>
         </div>
 
-        {/* market hand-off */}
-        <div
-          data-handoff
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0"
-        >
-          <HandoffPanel />
-        </div>
       </div>
     </section>
   );
