@@ -6,6 +6,7 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { heroState, seg, lerp, ease } from "@/lib/motion/heroProgress";
 import { PhoneUI } from "./PhoneUI";
+import { DashboardUI } from "./DashboardUI";
 
 /* ---------- procedural atmosphere (glow sprites + fog bands) ---------- */
 
@@ -65,14 +66,14 @@ const PHONE_H = 4.3;
 const PHONE_W = PHONE_H * (774 / 1498);
 const CARD_W = 3.5;
 const CARD_H = CARD_W * (1008 / 1600);
-const LAPTOP_W = 4.3;
-const LAPTOP_H = LAPTOP_W * (900 / 1600);
+const LAPTOP_W = 4.6;
+const LAPTOP_H = LAPTOP_W * (1062 / 1700);
 
 export function HeroScene() {
   const atm = useAtmosphere();
   const phoneArt = useArtwork("/textures/phone.png");
   const cardArt = useArtwork("/textures/card.png");
-  const laptopArt = useArtwork("/textures/laptop.png");
+  const laptopArt = useArtwork("/textures/screen.png");
 
   const phone = useRef<THREE.Group>(null);
   const phoneMat = useRef<THREE.MeshBasicMaterial>(null);
@@ -302,6 +303,17 @@ export function HeroScene() {
             depthWrite={false}
           />
         </mesh>
+
+        {/* live terminal on the display area (bezel inset measured below) */}
+        <Html
+          transform
+          position={[0, 0, 0.006]}
+          scale={0.1094}
+          zIndexRange={[28, 0]}
+          style={{ pointerEvents: "none" }}
+        >
+          <DashboardUI />
+        </Html>
       </group>
 
       {/* threshold flash — radial, capped, never full frame */}
