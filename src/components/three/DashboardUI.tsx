@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { fmtDelta, fmtPrice, useQuote } from "@/lib/market";
 import { Sparkline } from "@/components/charts/Sparkline";
 import { BitraLogo } from "@/components/BitraMark";
-import { heroState, seg } from "@/lib/motion/heroProgress";
+import { experience, seg } from "@/lib/experience/progress";
 
 const WATCH = [
   { id: "BTC", label: "Bitcoin", badge: "#f7931a", fg: "#fff" },
@@ -84,7 +84,7 @@ export function DashboardUI() {
     const loop = () => {
       if (ref.current) {
         // rides in with the laptop swap, holds through the exit
-        ref.current.style.opacity = String(seg(heroState.p, 0.73, 0.86));
+        ref.current.style.opacity = String(seg(experience.p, 0.73, 0.86));
       }
       raf = requestAnimationFrame(loop);
     };

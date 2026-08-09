@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { fmtDelta, fmtPrice, useQuote } from "@/lib/market";
 import { Sparkline } from "@/components/charts/Sparkline";
 import { BitraMark } from "@/components/BitraMark";
-import { heroState, seg } from "@/lib/motion/heroProgress";
+import { experience, seg } from "@/lib/experience/progress";
 
 /** Row styling mirrors the supplied app artwork's cream watchlist sheet. */
 const ROWS: { id: string; label: string; badge: string; fg: string }[] = [
@@ -77,7 +77,7 @@ export function PhoneUI() {
     let raf = 0;
     const loop = () => {
       if (ref.current) {
-        ref.current.style.opacity = String(1 - seg(heroState.p, 0.43, 0.5));
+        ref.current.style.opacity = String(1 - seg(experience.p, 0.43, 0.5));
       }
       raf = requestAnimationFrame(loop);
     };

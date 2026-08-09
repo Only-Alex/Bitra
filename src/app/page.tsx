@@ -1,6 +1,6 @@
 import { Nav } from "@/components/Nav";
 import { BitraLogo } from "@/components/BitraMark";
-import { Hero } from "@/sections/Hero";
+import { Experience } from "@/sections/Experience";
 import { ExchangePreview } from "@/sections/ExchangePreview";
 
 export default function Home() {
@@ -8,7 +8,7 @@ export default function Home() {
     <>
       <Nav />
       <main>
-        <Hero />
+        <Experience />
         <ExchangePreview />
       </main>
       <footer className="px-6 pb-10 md:px-10">

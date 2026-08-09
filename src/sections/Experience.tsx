@@ -3,15 +3,31 @@
 import { useRef } from "react";
 import dynamic from "next/dynamic";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger } from "@/lib/motion/gsap";
-import { heroState } from "@/lib/motion/heroProgress";
+import { gsap } from "@/lib/motion/gsap";
+import { experience } from "@/lib/experience/progress";
+import { EnvironmentLayer } from "@/components/experience/EnvironmentLayer";
 
-const HeroCanvas = dynamic(
-  () => import("@/components/three/HeroCanvas").then((m) => m.HeroCanvas),
+const ExperienceCanvas = dynamic(
+  () =>
+    import("@/components/experience/ExperienceCanvas").then(
+      (m) => m.ExperienceCanvas,
+    ),
   { ssr: false },
 );
 
-export function Hero() {
+/**
+ * The pinned experience section.
+ *
+ * One ScrollTrigger owns the whole journey and is the single scroll-animation
+ * authority. It writes the normalized progress that the 3D scene reads each
+ * frame, and drives the DOM layers on the same clock — so forward and reverse
+ * scrubbing are the same computation run in opposite directions.
+ *
+ * DOM stays semantic and above the canvas: headings are headings, the CTA is
+ * an anchor, and the live phone/terminal UI is real DOM rather than baked
+ * pixels.
+ */
+export function Experience() {
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -36,21 +52,28 @@ export function Hero() {
           },
         });
 
-        // only the visible plate spends decode cycles
-        const spaceVid = root.current?.querySelector<HTMLVideoElement>("[data-space] video");
-        const worldVid = root.current?.querySelector<HTMLVideoElement>("[data-world] video");
+        /* Environment playback is derived from progress, not from discrete
+           events, so scrubbing backwards resolves to the same state. */
+        const spaceVid = root.current?.querySelector<HTMLVideoElement>(
+          "[data-space] video",
+        );
+        const worldVid = root.current?.querySelector<HTMLVideoElement>(
+          "[data-world] video",
+        );
         const syncVideos = (p: number) => {
+          const wantSpace = p <= 0.55;
+          const wantWorld = p > 0.4;
           if (spaceVid) {
-            if (p > 0.55 && !spaceVid.paused) spaceVid.pause();
-            else if (p <= 0.55 && spaceVid.paused) void spaceVid.play().catch(() => {});
+            if (wantSpace && spaceVid.paused) void spaceVid.play().catch(() => {});
+            else if (!wantSpace && !spaceVid.paused) spaceVid.pause();
           }
           if (worldVid) {
-            if (p > 0.4 && worldVid.paused) void worldVid.play().catch(() => {});
-            else if (p <= 0.4 && !worldVid.paused) worldVid.pause();
+            if (wantWorld && worldVid.paused) void worldVid.play().catch(() => {});
+            else if (!wantWorld && !worldVid.paused) worldVid.pause();
           }
         };
 
-        // the master progress value — the 3D scene reads this each frame
+        // the master progress value — every consumer reads this
         tl.to(
           proxy,
           {
@@ -59,18 +82,17 @@ export function Hero() {
             onUpdate: () => {
               const now = performance.now();
               const dt = Math.max(16, now - lastT);
-              heroState.vel = Math.abs(proxy.p - lastP) / (dt / 1000);
+              experience.vel = Math.abs(proxy.p - lastP) / (dt / 1000);
               lastP = proxy.p;
               lastT = now;
-              heroState.p = proxy.p;
+              experience.p = proxy.p;
               syncVideos(proxy.p);
             },
           },
           0,
         );
 
-        /* DOM choreography on the same clock (positions = story progress) */
-        // background breathes with the dive — same clock, so reverse is exact
+        /* environment breathes on the same clock */
         tl.fromTo(
           "[data-space] video",
           { scale: 1.02, yPercent: 0 },
@@ -85,14 +107,12 @@ export function Hero() {
           )
           .to("[data-world] video", { scale: 1.1, duration: 0.25 }, 0.75);
 
+        /* DOM choreography, positions expressed as story progress */
         tl.to("[data-cue]", { autoAlpha: 0, duration: 0.06 }, 0.1)
-          // copy dims only after the object has clearly started moving
           .to("[data-open-copy]", { autoAlpha: 0, y: -44, duration: 0.14 }, 0.16)
           .to("[data-space]", { autoAlpha: 0, duration: 0.12 }, 0.4)
           .to("[data-stage]", { autoAlpha: 1, duration: 0.14 }, 0.44)
           .to("[data-world]", { autoAlpha: 1, duration: 0.12 }, 0.45)
-          // once the card settles the world recedes to a near-black stage so
-          // the product is the only thing in frame
           .to("[data-world]", { autoAlpha: 0.14, duration: 0.16 }, 0.56)
           .to("[data-ghost]", { autoAlpha: 0.18, duration: 0.16 }, 0.56)
           .fromTo(
@@ -132,14 +152,15 @@ export function Hero() {
           };
 
           if (desktop || mobile) {
-            heroState.frozen = false;
-            heroState.mobile = mobile;
+            experience.frozen = false;
+            experience.mobile = mobile;
             const tl = buildTimeline(desktop ? 320 : 220);
 
+            // pointer parallax is a desktop-only refinement
             if (desktop) {
               const onMove = (e: MouseEvent) => {
-                heroState.px = e.clientX / window.innerWidth - 0.5;
-                heroState.py = e.clientY / window.innerHeight - 0.5;
+                experience.px = e.clientX / window.innerWidth - 0.5;
+                experience.py = e.clientY / window.innerHeight - 0.5;
               };
               window.addEventListener("mousemove", onMove, { passive: true });
               return () => {
@@ -154,9 +175,10 @@ export function Hero() {
             };
           }
 
-          // reduced motion: static settled composition, everything readable
-          heroState.frozen = true;
-          heroState.p = 0.8;
+          // reduced motion: settled, readable, no pinning or scrubbing
+          experience.frozen = true;
+          experience.mobile = false;
+          experience.p = 0.8;
           gsap.set(
             "[data-open-copy], [data-copy-a], [data-copy-b], [data-stage], [data-world]",
             { autoAlpha: 1, y: 0 },
@@ -165,91 +187,26 @@ export function Hero() {
           gsap.set("[data-cue], [data-space]", { autoAlpha: 0 });
         },
       );
-
-      // pin measurements are only stable once media and fonts are in
-      const onLoad = () => ScrollTrigger.refresh();
-      window.addEventListener("load", onLoad);
-      document.fonts?.ready.then(() => ScrollTrigger.refresh());
-      return () => window.removeEventListener("load", onLoad);
     },
     { scope: root },
   );
 
   return (
-    <section ref={root} className="relative h-[100svh] overflow-hidden bg-void">
-      {/* backdrop: establish gradient, then product stage */}
-      <div className="absolute inset-0">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, #04060c 0%, #090b12 45%, #050508 100%)",
-          }}
-        />
-        {/* generated space plate — the opening world */}
-        <div data-space className="absolute inset-0">
-          <video
-            className="h-full w-full object-cover"
-            src="/videos/space.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            aria-hidden="true"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, rgba(5,5,8,0.55) 0%, transparent 30%, transparent 60%, rgba(5,5,8,0.85) 100%)",
-            }}
-          />
-        </div>
-        <div data-stage className="stage-bg absolute inset-0 opacity-0" />
-        {/* generated world plate — the market world inside the phone */}
-        <div data-world className="absolute inset-0 opacity-0">
-          <video
-            className="h-full w-full object-cover"
-            src="/videos/world.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="none"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 120% 90% at 50% 45%, transparent 30%, rgba(5,5,8,0.75) 80%, #050508 100%)",
-            }}
-          />
-        </div>
-        {/* ghosted word, deep behind the object */}
-        <div
-          data-ghost
-          className="absolute inset-x-0 top-1/2 -translate-y-1/2 select-none overflow-hidden text-center opacity-0"
-          aria-hidden="true"
-        >
-          {/* the real lockup, held far back as a watermark */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/brand/logo.png"
-            alt=""
-            className="mx-auto w-[62vw] max-w-none opacity-[0.13]"
-          />
-        </div>
-      </div>
+    <section
+      ref={root}
+      aria-label="Bitra market access"
+      className="relative h-[100svh] overflow-hidden bg-void"
+    >
+      {/* environment, behind the canvas */}
+      <EnvironmentLayer />
 
-      {/* the single WebGL canvas */}
+      {/* the single persistent WebGL canvas */}
       <div className="absolute inset-0 z-10">
-        <HeroCanvas />
+        <ExperienceCanvas />
       </div>
 
-      {/* copy layers */}
+      {/* semantic DOM, above the canvas */}
       <div className="relative z-20 h-full">
-        {/* opening state */}
         <div
           data-open-copy
           className="absolute bottom-[16vh] left-6 max-w-xl md:left-10"
@@ -277,7 +234,6 @@ export function Hero() {
           </a>
         </div>
 
-        {/* scroll cue */}
         <div
           data-cue
           className="absolute bottom-10 right-6 flex items-center gap-4 md:right-10"
@@ -286,7 +242,6 @@ export function Hero() {
           <span className="scroll-rail" />
         </div>
 
-        {/* post-threshold pair, opposing corners, around the object */}
         <div data-copy-a className="absolute left-6 top-[16vh] opacity-0 md:left-10">
           <h2 className="display text-[clamp(1.9rem,3.6vw,3.6rem)]">
             Markets, instantly
@@ -303,7 +258,6 @@ export function Hero() {
           </h2>
           <p className="mt-3 text-[16px] text-mute">More ways to move.</p>
         </div>
-
       </div>
     </section>
   );
