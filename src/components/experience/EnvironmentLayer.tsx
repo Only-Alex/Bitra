@@ -1,70 +1,99 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { ENVIRONMENT } from "@/lib/experience/progress";
+import { attachJourneyVideo } from "@/lib/experience/journeyVideo";
 
 /**
- * The environmental video layer, behind the canvas.
+ * The environmental plate behind the persistent narrative object.
  *
- * Both plates stay mounted for the whole experience — the timeline drives
- * their opacity and playback, so nothing remounts on reverse scroll. Sources
- * come from ENVIRONMENT.active; the optimized journey plates are already
- * committed and referenced in ENVIRONMENT.journey, ready to be switched in
- * without touching this component.
+ * The journey video is scrubbed, never played (see journeyVideo). Layered
+ * beneath it are the optimized poster and the aurora still, so there is a
+ * painted frame at every moment — before metadata parses, while a seek
+ * resolves, and if video decoding is refused outright.
+ *
+ * Under reduced motion no video is mounted at all; the static artwork is the
+ * environment.
  */
-export function EnvironmentLayer() {
+export function EnvironmentLayer({
+  reduced,
+  mobile,
+}: {
+  reduced: boolean;
+  mobile: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [painted, setPainted] = useState(false);
+
+  useEffect(() => {
+    if (reduced) return;
+    const el = videoRef.current;
+    if (!el) return;
+
+    const detach = attachJourneyVideo(el);
+    // reveal the plate only once a real frame exists behind the poster
+    const onReady = () => setPainted(true);
+    el.addEventListener("loadeddata", onReady);
+    el.addEventListener("seeked", onReady);
+    if (el.readyState >= 2) setPainted(true);
+
+    return () => {
+      el.removeEventListener("loadeddata", onReady);
+      el.removeEventListener("seeked", onReady);
+      detach();
+    };
+  }, [reduced]);
+
+  const src = mobile ? ENVIRONMENT.journey.mobile : ENVIRONMENT.journey.desktop;
+
   return (
-    <div className="absolute inset-0" aria-hidden="true">
+    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+      {/* deepest fallback — always painted, never black */}
+      <div
+        className="absolute inset-0 bg-void bg-cover bg-center"
+        style={{ backgroundImage: `url(${ENVIRONMENT.journey.aurora})` }}
+      />
+
+      {/* optimized poster, covering any gap before the plate paints */}
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-opacity duration-500"
+        style={{
+          backgroundImage: `url(${ENVIRONMENT.journey.poster})`,
+          opacity: reduced ? 0 : painted ? 0 : 1,
+        }}
+      />
+
+      {/* the scrubbed journey plate */}
+      {!reduced && (
+        <video
+          ref={videoRef}
+          data-journey
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
+          style={{ opacity: painted ? 1 : 0 }}
+          src={src}
+          muted
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          aria-hidden="true"
+        />
+      )}
+
+      {/* chamber still, revealed as the journey settles */}
+      <div
+        data-chamber
+        className="absolute inset-0 bg-cover bg-center opacity-0"
+        style={{ backgroundImage: `url(${ENVIRONMENT.journey.chamber})` }}
+      />
+
+      {/* restrained legibility gradient — copy sits bottom-left and top-left */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, #04060c 0%, #090b12 45%, #050508 100%)",
+            "linear-gradient(to bottom, rgba(5,5,8,0.55) 0%, rgba(5,5,8,0.10) 26%, rgba(5,5,8,0.10) 58%, rgba(5,5,8,0.82) 100%)",
         }}
       />
-
-      {/* opening world */}
-      <div data-space className="absolute inset-0">
-        <video
-          className="h-full w-full object-cover"
-          src={ENVIRONMENT.active.opening.desktop}
-          autoPlay
-          muted
-          loop
-          playsInline
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(5,5,8,0.55) 0%, transparent 30%, transparent 60%, rgba(5,5,8,0.85) 100%)",
-          }}
-        />
-      </div>
-
-      {/* product stage */}
-      <div data-stage className="stage-bg absolute inset-0 opacity-0" />
-
-      {/* market chamber */}
-      <div data-world className="absolute inset-0 opacity-0">
-        <video
-          className="h-full w-full object-cover"
-          src={ENVIRONMENT.active.chamber.desktop}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 120% 90% at 50% 45%, transparent 30%, rgba(5,5,8,0.75) 80%, #050508 100%)",
-          }}
-        />
-      </div>
 
       {/* brand watermark, held far back */}
       <div

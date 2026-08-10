@@ -30,6 +30,11 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     // one subscription: Lenis position -> ScrollTrigger
     lenis.on("scroll", ScrollTrigger.update);
 
+    if (process.env.NODE_ENV === "development") {
+      // debug handle: lets a dev jump the journey to an exact progress
+      (window as unknown as Record<string, unknown>).__lenis = lenis;
+    }
+
     // one ticker callback: GSAP clock -> Lenis
     const raf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(raf);

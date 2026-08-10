@@ -13,6 +13,8 @@
 export const experience = {
   /** normalized story progress, 0..1 */
   p: 0,
+  /** identity tag — proves every consumer shares one module instance */
+  id: Math.random().toString(36).slice(2, 8),
   /** pointer, normalized -0.5..0.5 (desktop only) */
   px: 0,
   py: 0,
@@ -25,21 +27,57 @@ export const experience = {
 };
 
 /**
- * Stage boundaries along `p`. Named so the scene reads as a story rather
- * than a wall of magic numbers, and so a boundary is changed in one place.
- * Values are unchanged from the calibrated timeline.
+ * Stage boundaries along `p` — the Bitra journey.
+ *
+ * Aurora landscape → market-access threshold → Bitra card → smoked-glass
+ * market panel → live exchange chamber. Named so the scene reads as a story,
+ * and so a boundary moves in exactly one place.
  */
 export const STAGE = {
-  approach: [0.14, 0.36],
-  dive: [0.38, 0.5],
-  bloom: [0.32, 0.52],
-  phoneFade: [0.46, 0.51],
-  settle: [0.48, 0.68],
-  swap: [0.7, 0.84],
-  cardFade: [0.72, 0.8],
-  panelIn: [0.72, 0.86],
-  handoff: [0.88, 1.0],
+  arrival: [0.0, 0.22],
+  approach: [0.22, 0.45],
+  portal: [0.45, 0.64],
+  orbit: [0.64, 0.8],
+  panel: [0.8, 0.92],
+  chamber: [0.92, 1.0],
 } as const;
+
+/**
+ * The object turns continuously through 2π across the journey. Each layer
+ * sits at a local rotation that is front-facing only inside its own window,
+ * so the phone→card and card→panel handovers happen while the plane is
+ * edge-on and therefore invisible. No cut, no flash, no empty frame.
+ */
+export const TURN = {
+  /** phone flips into the card: 0 → π, edge-on at the midpoint */
+  portalFrom: 0,
+  portalTo: Math.PI,
+  /** card flips into the panel: π → 2π, edge-on at the midpoint */
+  panelTo: Math.PI * 2,
+} as const;
+
+/**
+ * Crossfade windows, centred on the edge-on crossings.
+ *
+ * The turn reaches π/2 at p≈0.545 and 3π/2 at p≈0.86, where the plane is
+ * physically invisible. Fades are kept tight around those points so each
+ * subject resolves quickly and then holds — the card is fully readable from
+ * ~0.57 to ~0.84, which is the deliberate hold the story needs.
+ */
+export const FADE = {
+  phoneOut: [0.522, 0.545],
+  cardIn: [0.545, 0.572],
+  cardOut: [0.838, 0.86],
+  panelIn: [0.86, 0.888],
+} as const;
+
+/** threshold glow peaks as the object passes through the portal */
+export const BLOOM = [0.42, 0.62] as const;
+
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  (window as unknown as Record<string, unknown>).__exp = experience;
+  (window as unknown as Record<string, unknown>).__fade = FADE;
+}
 
 /** clamped sub-range progress: 0 before `a`, 1 after `b` */
 export function seg(p: number, a: number, b: number): number {

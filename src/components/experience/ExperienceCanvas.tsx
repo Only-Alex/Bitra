@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { NarrativeObject } from "./NarrativeObject";
 import { BUDGET } from "@/lib/experience/progress";
@@ -15,13 +15,19 @@ import { BUDGET } from "@/lib/experience/progress";
  * very first frame.
  */
 export function ExperienceCanvas() {
-  const [{ reduced, mobile }] = useState(() => {
-    if (typeof window === "undefined") return { reduced: false, mobile: false };
-    return {
+  // canvas is client-only (dynamic, ssr:false) but resolve after mount anyway
+  // so the first frame never depends on a render-time media query
+  const [{ reduced, mobile }, setEnv] = useState({
+    reduced: false,
+    mobile: false,
+  });
+
+  useEffect(() => {
+    setEnv({
       reduced: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
       mobile: window.matchMedia("(max-width: 767px)").matches,
-    };
-  });
+    });
+  }, []);
 
   const dpr = mobile ? BUDGET.dpr.mobile : BUDGET.dpr.desktop;
 
